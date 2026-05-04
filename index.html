@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FAST LN Origins</title>
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body>
+  <div id="game" class="crt">
+    <header class="hud top-hud">
+      <div class="panel profile">
+        <h1>STAR <span>(AGE 14)</span></h1>
+        <p>HP <span id="hp">100</span> | STAMINA <span id="stamina">80</span></p>
+        <p>LVL <span id="level">1</span> | EXP <span id="exp">0</span></p>
+      </div>
+      <div class="panel mission-banner">
+        <h2>FAST LN ORIGINS</h2>
+        <p>Objective: <strong id="currentObjective">Drop Episode 1</strong></p>
+      </div>
+      <div class="panel economy">
+        <p>$ <span id="cash">125</span></p>
+        <p>Weekly Income: <span id="income">310</span></p>
+      </div>
+    </header>
+
+    <main class="scene-wrap">
+      <aside class="panel left-ui">
+        <h3>Apartment Intro</h3>
+        <ul id="missionList"></ul>
+        <h4>Reputation</h4>
+        <div id="repBar" class="rep-bar"></div>
+      </aside>
+
+      <section id="scene" class="scene" tabindex="0" aria-label="Apartment scene"></section>
+
+      <aside class="panel right-ui">
+        <h3>Dialogue</h3>
+        <p id="dialogueText">Walk to your crew and press E to talk.</p>
+        <h4>Music HUD</h4>
+        <p>Now Playing: <span id="track">FAST LN Freestyle (Demo)</span></p>
+      </aside>
+    </main>
+
+    <nav class="hud bottom-hud">
+      <button class="tab active" data-menu="inventory">Inventory</button>
+      <button class="tab" data-menu="missions">Missions</button>
+      <button class="tab" data-menu="crew">Crew</button>
+      <button class="tab" data-menu="audio">Audio</button>
+    </nav>
+
+    <section id="menuPanel" class="panel menu-panel">
+      <h3 id="menuTitle">Inventory</h3>
+      <ul id="menuItems"></ul>
+    </section>
+  </div>
+
+  <audio id="blip" preload="auto"></audio>
+  <script src="scripts/game.js"></script>
+</body>
+</html>

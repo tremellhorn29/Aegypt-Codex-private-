@@ -1,0 +1,85 @@
+:root {
+  --bg: #0a0a0d;
+  --panel: rgba(3, 7, 11, 0.9);
+  --line: #2a2e3f;
+  --green: #35f968;
+  --purple: #b040ff;
+  --text: #d8d8db;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Courier New", monospace;
+  color: var(--text);
+  background: radial-gradient(circle at 50% 20%, #1a1f2f, #050507 70%);
+}
+#game {
+  max-width: 1200px;
+  margin: 1rem auto;
+  padding: 0.75rem;
+  border: 2px solid var(--line);
+  background: linear-gradient(180deg, rgba(0,0,0,0.75), rgba(20,9,24,0.8));
+  box-shadow: 0 0 30px rgba(176,64,255,.25), inset 0 0 40px rgba(53,249,104,.12);
+  position: relative;
+}
+.crt::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,.04) 0 2px, transparent 2px 4px);
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+.crt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 50px rgba(0,0,0,.6);
+  pointer-events: none;
+}
+.hud, .scene-wrap { display: grid; gap: .75rem; }
+.top-hud { grid-template-columns: 1fr 1fr 1fr; }
+.scene-wrap { grid-template-columns: 220px 1fr 260px; margin-top: .75rem; }
+.bottom-hud { grid-template-columns: repeat(4, 1fr); margin-top: .75rem; }
+.panel {
+  border: 2px solid var(--line);
+  background: var(--panel);
+  padding: .6rem;
+}
+.profile h1, .mission-banner h2 { color: var(--green); margin: 0 0 .25rem; }
+.profile span, .economy span, strong { color: var(--purple); }
+.scene {
+  min-height: 430px;
+  position: relative;
+  background: linear-gradient(180deg, #28182f, #120c16 55%, #0b1016);
+  overflow: hidden;
+}
+.character {
+  width: 28px;
+  height: 28px;
+  position: absolute;
+  border: 2px solid #111;
+  image-rendering: pixelated;
+}
+.player { background: var(--green); }
+.crew { background: #5f6cff; }
+.rep-bar {
+  height: 18px;
+  border: 1px solid var(--purple);
+  background: linear-gradient(90deg, var(--purple) var(--rep, 10%), #141418 var(--rep, 10%));
+}
+.tab {
+  border: 1px solid var(--line);
+  background: #060b11;
+  color: var(--text);
+  padding: .55rem;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.tab.active { outline: 2px solid var(--green); color: var(--green); }
+.menu-panel { margin-top: .75rem; }
+@media (max-width: 900px) {
+  .top-hud, .scene-wrap { grid-template-columns: 1fr; }
+  .scene { min-height: 320px; }
+}
