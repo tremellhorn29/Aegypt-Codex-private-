@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FAST LN Origins — Vertical Slice</title>
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body>
+  <div id="app" class="crt-shell">
+    <header class="hud top">
+      <div class="panel title">
+        <h1>FAST LN ORIGINS</h1>
+        <p>STAR (AGE 14) — APARTMENT SESSION</p>
+      </div>
+      <div class="panel mission">
+        <h2>MISSION</h2>
+        <p id="missionText">Drop Episode 1: Talk to all crew members.</p>
+      </div>
+      <div class="panel rep">
+        <h2>REPUTATION</h2>
+        <p><span id="repValue">0</span> REP</p>
+      </div>
+    </header>
+
+    <main class="game-wrap panel">
+      <div id="camera" class="camera">
+        <div id="world" class="world" aria-label="Pixel apartment scene"></div>
+      </div>
+      <div id="dialogue" class="dialogue hidden">
+        <h3 id="speaker">Crew</h3>
+        <p id="dialogueText"></p>
+      </div>
+      <div id="missionFx" class="mission-fx hidden">MISSION COMPLETE +10 REP</div>
+    </main>
+
+    <footer class="hud bottom">
+      <div class="panel controls">WASD: MOVE • E: INTERACT • M: MUSIC • ESC: PAUSE</div>
+      <button id="musicToggle" class="panel button" type="button">MUSIC: ON</button>
+      <div class="panel save">REP auto-saves to local storage.</div>
+    </footer>
+
+    <section id="startScreen" class="overlay visible">
+      <div class="panel overlay-card">
+        <h2>FAST LN Origins</h2>
+        <button class="menu-btn" id="newGameBtn">New Game</button>
+        <button class="menu-btn" id="continueBtn">Continue</button>
+        <button class="menu-btn" id="creditsBtn">Credits</button>
+        <p id="startInfo">Retro crew origins. Build your rep.</p>
+      </div>
+    </section>
+
+    <section id="tutorialOverlay" class="overlay hidden">
+      <div class="panel overlay-card">
+        <h2>Tutorial</h2>
+        <ul>
+          <li>WASD to move</li>
+          <li>E to talk</li>
+          <li>M to toggle music</li>
+          <li>Complete “Drop Episode 1” by talking to all crew members</li>
+        </ul>
+        <button class="menu-btn" id="startRunBtn">Start Run</button>
+      </div>
+    </section>
+
+    <section id="pauseOverlay" class="overlay hidden">
+      <div class="panel overlay-card">
+        <h2>Paused</h2>
+        <button class="menu-btn" id="resumeBtn">Resume</button>
+        <button class="menu-btn" id="pauseCreditsBtn">Credits</button>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="scripts/main.js"></script>
+</body>
+</html>
