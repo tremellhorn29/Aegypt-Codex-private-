@@ -3,35 +3,52 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>FAST LN Origins — Vertical Slice</title>
+  <title>FAST LN Origins — First Move</title>
   <link rel="stylesheet" href="styles/main.css" />
 </head>
 <body>
-  <div id="app" class="crt-shell">
+  <div id="app" class="game-shell">
     <header class="hud top">
-      <div class="panel title">
-        <h1>FAST LN ORIGINS</h1>
-        <p>STAR (AGE 14) — APARTMENT SESSION</p>
-      </div>
-      <div class="panel mission">
-        <h2>MISSION</h2>
-        <p id="missionText">Drop Episode 1: Talk to all crew members.</p>
-      </div>
-      <div class="panel rep">
-        <h2>REPUTATION</h2>
-        <p><span id="repValue">0</span> REP</p>
-      </div>
+      <section class="brand-card">
+        <p class="eyebrow">FAST LN ORIGINS</p>
+        <h1>FIRST MOVE</h1>
+        <p>STAR • AGE 14 • DAY 1</p>
+      </section>
+
+      <section class="mission-card">
+        <span class="chapter-tag">EPISODE 1</span>
+        <h2 id="missionText">Meet the crew before the day gets away.</h2>
+        <div id="objectiveProgress" class="progress-copy">0 / 5 connections made</div>
+      </section>
+
+      <button id="phoneBtn" class="phone-launch" type="button" aria-label="Open phone">📱</button>
     </header>
 
-    <main class="game-wrap panel">
+    <section class="stats-strip" aria-label="Life statistics">
+      <div><span>💵</span><strong id="moneyValue">20</strong><small>MONEY</small></div>
+      <div><span>⚡</span><strong id="energyValue">85</strong><small>ENERGY</small></div>
+      <div><span>🧠</span><strong id="knowledgeValue">10</strong><small>KNOWLEDGE</small></div>
+      <div><span>⭐</span><strong id="repValue">0</strong><small>REP</small></div>
+      <div><span>🤝</span><strong id="relationshipValue">5</strong><small>RELATIONS</small></div>
+      <div><span>👑</span><strong id="legacyValue">0</strong><small>LEGACY</small></div>
+    </section>
+
+    <main class="game-wrap">
       <div id="camera" class="camera">
-        <div id="world" class="world" aria-label="Pixel apartment scene"></div>
+        <div id="world" class="world" aria-label="Urban apartment and block scene"></div>
       </div>
+
+      <div id="locationBanner" class="location-banner">SOUTH COVE • APARTMENT BLOCK</div>
+
       <div id="dialogue" class="dialogue hidden">
-        <h3 id="speaker">Crew</h3>
-        <p id="dialogueText"></p>
+        <div id="portrait" class="dialogue-portrait"></div>
+        <div>
+          <h3 id="speaker">Crew</h3>
+          <p id="dialogueText"></p>
+        </div>
       </div>
-      <div id="missionFx" class="mission-fx hidden">MISSION COMPLETE +10 REP</div>
+
+      <div id="missionFx" class="mission-fx hidden">MISSION COMPLETE • LEGACY +1</div>
 
       <section id="touchControls" class="touch-controls" aria-label="Touch game controls">
         <div class="dpad" aria-label="Movement controls">
@@ -41,46 +58,70 @@
           <button class="touch-btn dpad-right" type="button" data-key="d" aria-label="Move right">▶</button>
         </div>
         <div class="action-pad">
-          <button id="touchInteract" class="touch-btn action-btn interact-btn" type="button" aria-label="Interact">E</button>
+          <button id="touchInteract" class="touch-btn action-btn interact-btn" type="button" aria-label="Interact">TALK</button>
           <button id="touchPause" class="touch-btn action-btn pause-btn" type="button" aria-label="Pause">Ⅱ</button>
         </div>
       </section>
     </main>
 
-    <footer class="hud bottom">
-      <div class="panel controls">WASD / TOUCH: MOVE • E: INTERACT • M: MUSIC • ESC: PAUSE</div>
-      <button id="musicToggle" class="panel button" type="button">MUSIC: ON</button>
-      <div class="panel save">REP auto-saves to local storage.</div>
+    <footer class="bottom-bar">
+      <span>MOVE</span><b>WASD / D-PAD</b><span>INTERACT</span><b>E / TALK</b><span>AUTO-SAVE</span><b>ON</b>
     </footer>
 
+    <section id="phoneOverlay" class="phone-overlay hidden" aria-label="In-game phone">
+      <div class="phone-device">
+        <header>
+          <div><small>9:14 PM</small><strong>FAST LN</strong></div>
+          <button id="phoneClose" type="button" aria-label="Close phone">×</button>
+        </header>
+        <div class="phone-grid">
+          <button data-app="messages"><span>💬</span>Messages</button>
+          <button data-app="missions"><span>🎯</span>Missions</button>
+          <button data-app="jobs"><span>💼</span>Jobs</button>
+          <button data-app="school"><span>📚</span>School</button>
+          <button data-app="bank"><span>💳</span>Bank</button>
+          <button data-app="calendar"><span>📅</span>Calendar</button>
+        </div>
+        <article id="phoneContent" class="phone-content">
+          <h3>Messages</h3>
+          <p><b>Nova:</b> Everybody is waiting downstairs. Don’t waste the night.</p>
+          <p><b>Home:</b> Handle what matters before chasing what shines.</p>
+        </article>
+      </div>
+    </section>
+
     <section id="startScreen" class="overlay visible">
-      <div class="panel overlay-card">
-        <h2>FAST LN Origins</h2>
-        <button class="menu-btn" id="newGameBtn">New Game</button>
-        <button class="menu-btn" id="continueBtn">Continue</button>
-        <button class="menu-btn" id="creditsBtn">Credits</button>
-        <p id="startInfo">Retro crew origins. Build your rep.</p>
+      <div class="start-card">
+        <p class="eyebrow">AN URBAN LIFE & LEGACY RPG</p>
+        <h2>FAST LN<br><span>ORIGINS</span></h2>
+        <p>Every day costs energy. Every choice leaves a name behind.</p>
+        <button class="menu-btn" id="newGameBtn">Begin Day One</button>
+        <button class="menu-btn secondary" id="continueBtn">Continue</button>
+        <button class="menu-btn ghost" id="creditsBtn">Credits</button>
+        <p id="startInfo">Build money. Protect relationships. Create legacy.</p>
       </div>
     </section>
 
     <section id="tutorialOverlay" class="overlay hidden">
-      <div class="panel overlay-card">
-        <h2>Tutorial</h2>
+      <div class="tutorial-card">
+        <p class="eyebrow">YOUR FIRST MOVE</p>
+        <h2>THE DAY IS ALREADY MOVING.</h2>
         <ul>
-          <li>WASD or the touch D-pad to move</li>
-          <li>E or the round E button to talk</li>
-          <li>M to toggle music</li>
-          <li>Complete “Drop Episode 1” by talking to all crew members</li>
+          <li>Move through the block and meet all five crew members.</li>
+          <li>Talking builds relationships and drains a little energy.</li>
+          <li>Open the phone to check missions, school, money, and messages.</li>
+          <li>Finish the night with more than reputation—build legacy.</li>
         </ul>
-        <button class="menu-btn" id="startRunBtn">Start Run</button>
+        <button class="menu-btn" id="startRunBtn">Step Outside</button>
       </div>
     </section>
 
     <section id="pauseOverlay" class="overlay hidden">
-      <div class="panel overlay-card">
-        <h2>Paused</h2>
+      <div class="tutorial-card">
+        <p class="eyebrow">TIME FROZEN</p>
+        <h2>PAUSED</h2>
         <button class="menu-btn" id="resumeBtn">Resume</button>
-        <button class="menu-btn" id="pauseCreditsBtn">Credits</button>
+        <button class="menu-btn ghost" id="pauseCreditsBtn">View Credits</button>
       </div>
     </section>
   </div>
