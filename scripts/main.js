@@ -91,27 +91,47 @@ document.addEventListener("visibilitychange", () => { if (document.hidden) clear
 
 function bindHoldButton(button) {
   const key = button.dataset.key;
+
   const press = (event) => {
     event.preventDefault();
+    event.stopPropagation();
     if (!state.running || state.paused) return;
     state.keys[key] = true;
     button.classList.add("pressed");
-    button.setPointerCapture?.(event.pointerId);
   };
+
   const release = (event) => {
-    event.preventDefault();
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
     state.keys[key] = false;
     button.classList.remove("pressed");
-    if (button.hasPointerCapture?.(event.pointerId)) button.releasePointerCapture(event.pointerId);
   };
-  button.addEventListener("pointerdown", press);
-  button.addEventListener("pointerup", release);
+
+  // iPhone/iPad Safari responds most reliably to native touch events.
+  button.addEventListener("touchstart", press, { passive: false });
+  button.addEventListener("touchend", release, { passive: false });
+  button.addEventListener("touchcancel", release, { passive: false });
+
+  // Pointer events preserve support for Android, stylus, mouse, and desktop testing.
+  button.addEventListener("pointerdown", (event) => {
+    if (event.pointerType === "touch") return;
+    press(event);
+  });
+  button.addEventListener("pointerup", (event) => {
+    if (event.pointerType === "touch") return;
+    release(event);
+  });
   button.addEventListener("pointercancel", release);
-  button.addEventListener("pointerleave", (event) => { if (event.buttons === 0) release(event); });
   button.addEventListener("contextmenu", event => event.preventDefault());
 }
 
 document.querySelectorAll("[data-key]").forEach(bindHoldButton);
+
+// Release any held direction if the finger ends outside the original button.
+document.addEventListener("touchend", clearMovement, { passive: true });
+document.addEventListener("touchcancel", clearMovement, { passive: true });
+window.addEventListener("pointerup", (event) => { if (event.pointerType !== "touch") clearMovement(); });
+
 el.touchInteract?.addEventListener("pointerdown", (event) => { event.preventDefault(); el.touchInteract.classList.add("pressed"); interact(); });
 el.touchInteract?.addEventListener("pointerup", () => el.touchInteract.classList.remove("pressed"));
 el.touchInteract?.addEventListener("pointercancel", () => el.touchInteract.classList.remove("pressed"));
