@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>FAST LN Origins — First Move</title>
-  <link rel="stylesheet" href="styles/main.css?v=8" />
-  <link rel="stylesheet" href="styles/mobile-fix.css?v=8" />
+  <link rel="stylesheet" href="styles/main.css?v=9" />
+  <link rel="stylesheet" href="styles/mobile-fix.css?v=9" />
 </head>
 <body>
   <div id="app" class="game-shell">
@@ -15,13 +15,11 @@
         <h1>FIRST MOVE</h1>
         <p>STAR • AGE 14 • DAY 1</p>
       </section>
-
       <section class="mission-card">
         <span class="chapter-tag">EPISODE 1</span>
         <h2 id="missionText">Meet the crew before the day gets away.</h2>
         <div id="objectiveProgress" class="progress-copy">0 / 5 connections made</div>
       </section>
-
       <button id="phoneBtn" class="phone-launch" type="button" aria-label="Open phone">📱</button>
     </header>
 
@@ -35,22 +33,13 @@
     </section>
 
     <main class="game-wrap">
-      <div id="camera" class="camera">
-        <div id="world" class="world" aria-label="Urban apartment and block scene"></div>
-      </div>
-
+      <div id="camera" class="camera"><div id="world" class="world" aria-label="Urban apartment and block scene"></div></div>
       <div id="locationBanner" class="location-banner">SOUTH COVE • APARTMENT BLOCK</div>
-
       <div id="dialogue" class="dialogue hidden">
         <div id="portrait" class="dialogue-portrait"></div>
-        <div>
-          <h3 id="speaker">Crew</h3>
-          <p id="dialogueText"></p>
-        </div>
+        <div><h3 id="speaker">Crew</h3><p id="dialogueText"></p></div>
       </div>
-
       <div id="missionFx" class="mission-fx hidden">MISSION COMPLETE • LEGACY +1</div>
-
       <section id="touchControls" class="touch-controls" aria-label="Touch game controls">
         <div class="dpad" aria-label="Movement controls">
           <button class="touch-btn dpad-up" type="button" data-key="w" aria-label="Move up">▲</button>
@@ -59,22 +48,19 @@
           <button class="touch-btn dpad-right" type="button" data-key="d" aria-label="Move right">▶</button>
         </div>
         <div class="action-pad">
-          <button id="touchInteract" class="touch-btn action-btn interact-btn" type="button" aria-label="Interact">TALK</button>
+          <button id="touchInteract" class="touch-btn action-btn interact-btn" type="button" aria-label="Action">A</button>
           <button id="touchPause" class="touch-btn action-btn pause-btn" type="button" aria-label="Pause">Ⅱ</button>
         </div>
       </section>
     </main>
 
     <footer class="bottom-bar">
-      <span>MOVE</span><b>WASD / D-PAD</b><span>INTERACT</span><b>E / TALK</b><span>AUTO-SAVE</span><b>ON</b>
+      <span>MOVE</span><b>WASD / STICK</b><span>ACTION</span><b>A / E</b><span>BACK</span><b>B / Q</b>
     </footer>
 
     <section id="phoneOverlay" class="phone-overlay hidden" aria-label="In-game phone">
       <div class="phone-device">
-        <header>
-          <div><small>9:14 PM</small><strong>FAST LN</strong></div>
-          <button id="phoneClose" type="button" aria-label="Close phone">×</button>
-        </header>
+        <header><div><small>9:14 PM</small><strong>FAST LN</strong></div><button id="phoneClose" type="button" aria-label="Close phone">×</button></header>
         <div class="phone-grid">
           <button data-app="messages"><span>💬</span>Messages</button>
           <button data-app="missions"><span>🎯</span>Missions</button>
@@ -83,11 +69,7 @@
           <button data-app="bank"><span>💳</span>Bank</button>
           <button data-app="calendar"><span>📅</span>Calendar</button>
         </div>
-        <article id="phoneContent" class="phone-content">
-          <h3>Messages</h3>
-          <p><b>Nova:</b> Everybody is waiting downstairs. Don’t waste the night.</p>
-          <p><b>Home:</b> Handle what matters before chasing what shines.</p>
-        </article>
+        <article id="phoneContent" class="phone-content"><h3>Messages</h3><p><b>Nova:</b> Everybody is waiting downstairs.</p></article>
       </div>
     </section>
 
@@ -108,10 +90,11 @@
         <p class="eyebrow">YOUR FIRST MOVE</p>
         <h2>THE DAY IS ALREADY MOVING.</h2>
         <ul>
-          <li>Move through the block and meet all five crew members.</li>
-          <li>Talking builds relationships and drains a little energy.</li>
-          <li>Open the phone to check missions, school, money, and messages.</li>
-          <li>Finish the night with more than reputation—build legacy.</li>
+          <li>Move in eight directions with touch, keyboard, or the DualSense left stick.</li>
+          <li>Press A, E, or Cross to interact and confirm decisions.</li>
+          <li>Press B, Q, or Circle to close dialogue, cancel, or go back.</li>
+          <li>Your decisions change money, energy, knowledge, reputation, relationships, and legacy.</li>
+          <li>Meeting the crew is only the first chapter of the night.</li>
         </ul>
         <button class="menu-btn" id="startRunBtn" type="button">Step Outside</button>
       </div>
@@ -119,14 +102,12 @@
 
     <section id="pauseOverlay" class="overlay hidden">
       <div class="tutorial-card">
-        <p class="eyebrow">TIME FROZEN</p>
-        <h2>PAUSED</h2>
+        <p class="eyebrow">TIME FROZEN</p><h2>PAUSED</h2>
         <button class="menu-btn" id="resumeBtn" type="button">Resume</button>
         <button class="menu-btn ghost" id="pauseCreditsBtn" type="button">View Credits</button>
       </div>
     </section>
   </div>
-
-  <script defer src="scripts/game.bundle.js?v=8"></script>
+  <script defer src="scripts/game.bundle.js?v=9"></script>
 </body>
 </html>
