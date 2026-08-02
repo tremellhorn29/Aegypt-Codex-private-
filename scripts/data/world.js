@@ -1,24 +1,29 @@
-export const WORLD = { width: 1600, height: 900 };
+export const WORLD = { width: 1600, height: 1000 };
 
 export const WALLS = [
-  { x: 0, y: 0, w: 1600, h: 30 },
-  { x: 0, y: 870, w: 1600, h: 30 },
-  { x: 0, y: 0, w: 30, h: 900 },
-  { x: 1570, y: 0, w: 30, h: 900 },
-  { x: 460, y: 530, w: 300, h: 40 },
-  { x: 980, y: 300, w: 220, h: 36 },
+  { x: 0, y: 0, w: 1600, h: 28 },
+  { x: 0, y: 972, w: 1600, h: 28 },
+  { x: 0, y: 0, w: 28, h: 1000 },
+  { x: 1572, y: 0, w: 28, h: 1000 },
+  { x: 410, y: 410, w: 36, h: 420 },
+  { x: 970, y: 250, w: 36, h: 360 },
+  { x: 1210, y: 590, w: 280, h: 34 },
 ];
 
 export const FURNITURE = [
-  { x: 140, y: 640, w: 200, h: 100 },
-  { x: 760, y: 620, w: 230, h: 110 },
-  { x: 1150, y: 650, w: 180, h: 80 },
+  { type: "sofa", label: "Family Couch", x: 90, y: 690, w: 230, h: 105 },
+  { type: "desk", label: "Study Desk", x: 120, y: 310, w: 170, h: 85 },
+  { type: "tv", label: "TV", x: 310, y: 140, w: 70, h: 150 },
+  { type: "studio", label: "Bedroom Studio", x: 535, y: 640, w: 260, h: 120 },
+  { type: "counter", label: "Corner Store", x: 1065, y: 150, w: 330, h: 110 },
+  { type: "bench", label: "Courtyard Bench", x: 1090, y: 700, w: 210, h: 72 },
+  { type: "hoop", label: "The Court", x: 1390, y: 350, w: 70, h: 140 },
 ];
 
 export const CREW = [
-  { id: "nova", name: "Nova", x: 260, y: 560, line: "I tuned the drums, now we need your vocal take." },
-  { id: "rex", name: "Rex", x: 640, y: 470, line: "Write that opener. Episode 1 has to hit." },
-  { id: "mina", name: "Mina", x: 820, y: 690, line: "Cover art is ready. Let's match the vibe." },
-  { id: "kai", name: "Kai", x: 1060, y: 500, line: "Promo clips are queued, just need the record." },
-  { id: "jett", name: "Jett", x: 1320, y: 640, line: "CRT is patched. Old-school visuals are live." },
+  { id: "nova", name: "Nova", role: "Producer", look: "violet", x: 520, y: 560, line: "The beat is ready, but talent means nothing if you never show up." },
+  { id: "rex", name: "Rex", role: "Strategist", look: "gold", x: 760, y: 455, line: "You can chase quick respect, or build something nobody can take from you." },
+  { id: "mina", name: "Mina", role: "Artist", look: "rose", x: 865, y: 730, line: "I made the cover feel like our block—rough edges, bright future." },
+  { id: "kai", name: "Kai", role: "Connector", look: "cyan", x: 1125, y: 520, line: "People remember who helped before they remember who talked the loudest." },
+  { id: "jett", name: "Jett", role: "Tech", look: "green", x: 1350, y: 700, line: "Your phone is the real command center. Check it before the next move." },
 ];
