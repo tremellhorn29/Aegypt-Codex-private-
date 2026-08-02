@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>FAST LN Origins — Vertical Slice</title>
   <link rel="stylesheet" href="styles/main.css" />
 </head>
@@ -32,10 +32,23 @@
         <p id="dialogueText"></p>
       </div>
       <div id="missionFx" class="mission-fx hidden">MISSION COMPLETE +10 REP</div>
+
+      <section id="touchControls" class="touch-controls" aria-label="Touch game controls">
+        <div class="dpad" aria-label="Movement controls">
+          <button class="touch-btn dpad-up" type="button" data-key="w" aria-label="Move up">▲</button>
+          <button class="touch-btn dpad-left" type="button" data-key="a" aria-label="Move left">◀</button>
+          <button class="touch-btn dpad-down" type="button" data-key="s" aria-label="Move down">▼</button>
+          <button class="touch-btn dpad-right" type="button" data-key="d" aria-label="Move right">▶</button>
+        </div>
+        <div class="action-pad">
+          <button id="touchInteract" class="touch-btn action-btn interact-btn" type="button" aria-label="Interact">E</button>
+          <button id="touchPause" class="touch-btn action-btn pause-btn" type="button" aria-label="Pause">Ⅱ</button>
+        </div>
+      </section>
     </main>
 
     <footer class="hud bottom">
-      <div class="panel controls">WASD: MOVE • E: INTERACT • M: MUSIC • ESC: PAUSE</div>
+      <div class="panel controls">WASD / TOUCH: MOVE • E: INTERACT • M: MUSIC • ESC: PAUSE</div>
       <button id="musicToggle" class="panel button" type="button">MUSIC: ON</button>
       <div class="panel save">REP auto-saves to local storage.</div>
     </footer>
@@ -54,8 +67,8 @@
       <div class="panel overlay-card">
         <h2>Tutorial</h2>
         <ul>
-          <li>WASD to move</li>
-          <li>E to talk</li>
+          <li>WASD or the touch D-pad to move</li>
+          <li>E or the round E button to talk</li>
           <li>M to toggle music</li>
           <li>Complete “Drop Episode 1” by talking to all crew members</li>
         </ul>
