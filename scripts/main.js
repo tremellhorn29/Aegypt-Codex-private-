@@ -7,7 +7,8 @@ const el = {
   world: document.querySelector("#world"), camera: document.querySelector("#camera"), mission: document.querySelector("#missionText"),
   rep: document.querySelector("#repValue"), dialogue: document.querySelector("#dialogue"), speaker: document.querySelector("#speaker"),
   dialogueText: document.querySelector("#dialogueText"), musicBtn: document.querySelector("#musicToggle"), missionFx: document.querySelector("#missionFx"),
-  start: document.querySelector("#startScreen"), tutorial: document.querySelector("#tutorialOverlay"), pause: document.querySelector("#pauseOverlay"), startInfo: document.querySelector("#startInfo")
+  start: document.querySelector("#startScreen"), tutorial: document.querySelector("#tutorialOverlay"), pause: document.querySelector("#pauseOverlay"), startInfo: document.querySelector("#startInfo"),
+  touchControls: document.querySelector("#touchControls"), touchInteract: document.querySelector("#touchInteract"), touchPause: document.querySelector("#touchPause")
 };
 
 const buttons = {
@@ -52,6 +53,7 @@ function completeMission() {
 }
 
 function interact() {
+  if (!state.running || state.paused) return;
   for (const crew of crewMap.values()) {
     const near = Math.abs(state.player.x - crew.x) < 50 && Math.abs(state.player.y - crew.y) < 50;
     if (!near) continue;
@@ -62,7 +64,16 @@ function interact() {
   showDialogue("System", "No crew nearby. Move closer and press E.");
 }
 
-function setPaused(next) { state.paused = next; if (next) showOverlay(el.pause); else hideOverlay(el.pause); }
+function clearMovement() {
+  for (const key of ["w", "a", "s", "d"]) state.keys[key] = false;
+  document.querySelectorAll("[data-key].pressed").forEach(button => button.classList.remove("pressed"));
+}
+
+function setPaused(next) {
+  state.paused = next;
+  clearMovement();
+  if (next) showOverlay(el.pause); else hideOverlay(el.pause);
+}
 function startNewGame() { state.player.x = 120; state.player.y = 700; state.talked = new Set(); state.missionDone = false; el.mission.textContent = "Drop Episode 1: Talk to all crew members."; hideOverlay(el.start); showOverlay(el.tutorial); }
 function continueGame() { hideOverlay(el.start); state.running = true; }
 
@@ -75,8 +86,38 @@ window.addEventListener("keydown", (e) => {
   if (key === "m") audio.toggle();
 });
 window.addEventListener("keyup", (e) => { const key = e.key.toLowerCase(); if (["w", "a", "s", "d"].includes(key)) state.keys[key] = false; });
-el.musicBtn.addEventListener("click", () => audio.toggle());
+window.addEventListener("blur", clearMovement);
+document.addEventListener("visibilitychange", () => { if (document.hidden) clearMovement(); });
 
+function bindHoldButton(button) {
+  const key = button.dataset.key;
+  const press = (event) => {
+    event.preventDefault();
+    if (!state.running || state.paused) return;
+    state.keys[key] = true;
+    button.classList.add("pressed");
+    button.setPointerCapture?.(event.pointerId);
+  };
+  const release = (event) => {
+    event.preventDefault();
+    state.keys[key] = false;
+    button.classList.remove("pressed");
+    if (button.hasPointerCapture?.(event.pointerId)) button.releasePointerCapture(event.pointerId);
+  };
+  button.addEventListener("pointerdown", press);
+  button.addEventListener("pointerup", release);
+  button.addEventListener("pointercancel", release);
+  button.addEventListener("pointerleave", (event) => { if (event.buttons === 0) release(event); });
+  button.addEventListener("contextmenu", event => event.preventDefault());
+}
+
+document.querySelectorAll("[data-key]").forEach(bindHoldButton);
+el.touchInteract?.addEventListener("pointerdown", (event) => { event.preventDefault(); el.touchInteract.classList.add("pressed"); interact(); });
+el.touchInteract?.addEventListener("pointerup", () => el.touchInteract.classList.remove("pressed"));
+el.touchInteract?.addEventListener("pointercancel", () => el.touchInteract.classList.remove("pressed"));
+el.touchPause?.addEventListener("click", () => { if (state.running) setPaused(!state.paused); });
+
+el.musicBtn.addEventListener("click", () => audio.toggle());
 buttons.newGame.addEventListener("click", startNewGame);
 buttons.cont.addEventListener("click", continueGame);
 buttons.credits.addEventListener("click", () => { el.startInfo.textContent = "Credits: FAST LN dev crew • retro web slice"; audio.blip(); });
