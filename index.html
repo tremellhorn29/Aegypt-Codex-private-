@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>FAST LN Origins — First Move</title>
-  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/main.css?v=7" />
+  <link rel="stylesheet" href="styles/mobile-fix.css?v=7" />
 </head>
 <body>
   <div id="app" class="game-shell">
@@ -95,9 +96,9 @@
         <p class="eyebrow">AN URBAN LIFE & LEGACY RPG</p>
         <h2>FAST LN<br><span>ORIGINS</span></h2>
         <p>Every day costs energy. Every choice leaves a name behind.</p>
-        <button class="menu-btn" id="newGameBtn">Begin Day One</button>
-        <button class="menu-btn secondary" id="continueBtn">Continue</button>
-        <button class="menu-btn ghost" id="creditsBtn">Credits</button>
+        <button class="menu-btn" id="newGameBtn" type="button">Begin Day One</button>
+        <button class="menu-btn secondary" id="continueBtn" type="button">Continue</button>
+        <button class="menu-btn ghost" id="creditsBtn" type="button">Credits</button>
         <p id="startInfo">Build money. Protect relationships. Create legacy.</p>
       </div>
     </section>
@@ -112,7 +113,7 @@
           <li>Open the phone to check missions, school, money, and messages.</li>
           <li>Finish the night with more than reputation—build legacy.</li>
         </ul>
-        <button class="menu-btn" id="startRunBtn">Step Outside</button>
+        <button class="menu-btn" id="startRunBtn" type="button">Step Outside</button>
       </div>
     </section>
 
@@ -120,12 +121,12 @@
       <div class="tutorial-card">
         <p class="eyebrow">TIME FROZEN</p>
         <h2>PAUSED</h2>
-        <button class="menu-btn" id="resumeBtn">Resume</button>
-        <button class="menu-btn ghost" id="pauseCreditsBtn">View Credits</button>
+        <button class="menu-btn" id="resumeBtn" type="button">Resume</button>
+        <button class="menu-btn ghost" id="pauseCreditsBtn" type="button">View Credits</button>
       </div>
     </section>
   </div>
 
-  <script type="module" src="scripts/main.js"></script>
+  <script type="module" src="scripts/main.js?v=7"></script>
 </body>
 </html>
