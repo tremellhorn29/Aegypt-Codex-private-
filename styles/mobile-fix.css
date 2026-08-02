@@ -1,0 +1,84 @@
+/* Mobile stability and presentation patch */
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
+body.menu-open {
+  overflow: hidden;
+}
+
+.overlay {
+  isolation: isolate;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  background: #07080d;
+  pointer-events: auto;
+}
+
+.overlay.visible {
+  display: flex !important;
+}
+
+.overlay.hidden {
+  display: none !important;
+  pointer-events: none;
+}
+
+.start-card,
+.tutorial-card {
+  pointer-events: auto;
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  background: linear-gradient(160deg, #151722 0%, #0a0b10 72%);
+  border-color: #4a4f66;
+  box-shadow: 0 20px 65px rgba(0, 0, 0, .78), 10px 10px 0 #000;
+}
+
+.start-card > *,
+.tutorial-card > * {
+  position: relative;
+  z-index: 2;
+}
+
+.menu-btn {
+  min-height: 56px;
+  touch-action: manipulation;
+  pointer-events: auto;
+  position: relative;
+  z-index: 4;
+}
+
+@media (max-width: 760px) {
+  .overlay {
+    align-items: flex-start;
+    padding: max(1rem, env(safe-area-inset-top)) .75rem max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .start-card,
+  .tutorial-card {
+    width: 100%;
+    margin: auto 0;
+    padding: 1.15rem;
+    border-width: 2px;
+    box-shadow: 6px 8px 0 #000;
+  }
+
+  .start-card h2 {
+    font-size: clamp(2.8rem, 15vw, 4.9rem);
+    margin: .55rem 0 1rem;
+  }
+
+  .start-card > p:not(.eyebrow),
+  .tutorial-card li {
+    font-size: .94rem;
+    line-height: 1.45;
+  }
+
+  .game-shell {
+    min-height: 100dvh;
+  }
+}
