@@ -73,3 +73,11 @@ This release is **the playable first combat slice**, not a claim of a finished c
 ## Deployment
 
 GitHub Pages deploys the **main** branch with `.github/workflows/static.yml`. Merging a feature pull request into main is required before the public Pages site updates. Older unreferenced game assets are retained deliberately until the fighting rebuild is approved.
+
+## FAST LN studio review and shipping gates
+
+The shared [FAST LN Studio Playbook](STUDIO_PLAYBOOK.md) describes gameplay, frontend, UX, architecture, security and QA roles; mobile/controller test matrices; save compatibility; and the release checklist.
+
+The **Street Kings combat checks** GitHub Actions workflow now runs both Node combat/gamepad regression tests and the existing Playwright mobile browser smoke on pull requests. That browser smoke exercises opponent selection, round timer, pause, simulated standard-gamepad actions, disconnect behavior, touch interaction and screen widths. It does not prove physical DUALSHOCK 4 compatibility. Complete an actual iPhone/Safari playtest before calling a gamepad release fully verified.
+
+Run the browser check locally with Playwright installed and `python3 -m http.server 8000` running from the repository root. Use `node tests/browser.cjs` in a second terminal.
