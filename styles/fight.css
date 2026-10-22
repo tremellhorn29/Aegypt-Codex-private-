@@ -11,3 +11,7 @@
 .controller-guide{font-size:.70rem;line-height:1.4;color:#83e2d0;background:#102f35;border-left:3px solid #58e1bd;padding:8px 10px;margin:9px 0}
 @media(max-width:750px){.header-right{gap:5px}.controller-status{font-size:.47rem;padding:4px;max-width:98px}.controller-guide{font-size:.63rem;padding:6px 8px}}
 @media(max-width:400px){.brand{gap:5px}.controller-status{max-width:79px;font-size:.42rem}}
+
+/* Clean hit-chain feedback. It stays away from touch targets and the arena HUD. */
+.combo-callout{position:absolute;left:3%;top:23%;z-index:6;color:#ffe08a;text-shadow:3px 3px #08121b;font:900 clamp(1.2rem,3.1vw,2.5rem)/1 var(--display);letter-spacing:.05em;transform:translateY(8px) scale(.96);opacity:0;transition:opacity .09s,transform .12s;pointer-events:none}.combo-callout.visible{opacity:1;transform:translateY(0) scale(1)}
+@media(max-width:600px){.combo-callout{top:29%;left:2%;font-size:clamp(.85rem,4vw,1.4rem)}}

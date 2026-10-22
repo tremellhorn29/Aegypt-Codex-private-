@@ -4,6 +4,8 @@
   const WIDTH = 960;
   const ROUNDS_TO_WIN = 2;
   const ROUND_SECONDS = 50;
+  const COMBO_WINDOW = 1.15;
+  const MAX_COMBO = 3;
   const RIVALS = Object.freeze([
     { name: "ROOK", title: "THE CORNER ROOKIE", color: "#ff9c41", skin: "#996144", speed: 170, aggression: .47, payout: 50, quote: "Everybody starts somewhere." },
     { name: "VEX", title: "THE COUNTER KING", color: "#ab86ff", skin: "#8e523e", speed: 185, aggression: .64, payout: 90, quote: "You swing. I collect." },
@@ -19,7 +21,8 @@
   function fighter(name, x, color, skin, speed) {
     return { name, x, health: 100, stamina: 100, meter: 0, color, skin, speed,
       guard: false, dodge: 0, dodgeCooldown: 0, stun: 0, cooldown: 0, attack: null,
-      attackClock: 0, hitPending: false, facing: x < WIDTH / 2 ? 1 : -1, moving: 0 };
+      attackClock: 0, hitPending: false, facing: x < WIDTH / 2 ? 1 : -1, moving: 0,
+      combo: 0, comboClock: 0 };
   }
   function createMatch(rivalIndex = 0) {
     const index = clamp(Math.floor(Number(rivalIndex) || 0), 0, RIVALS.length - 1);
@@ -79,19 +82,33 @@
     const a = game.fighters[index], b = game.fighters[1 - index], move = MOVES[kind];
     const distance = Math.abs(a.x - b.x);
     if (distance > move.reach || b.dodge > 0) {
+      a.combo = 0;
+      a.comboClock = 0;
+      // A missed strike creates a meaningful punish window after the animation.
+      a.cooldown = Math.max(a.cooldown, move.cooldown + .12);
       game.events.push({ type: b.dodge > 0 ? "evade" : "whiff", who: index, kind });
       return;
     }
     const blocked = b.guard && b.stamina > 0 && b.stun <= 0;
-    const damage = blocked ? Math.max(1, Math.round(move.damage * .16)) : move.damage;
+    // Only consecutive clean hits count as a combo. Blocking/whiffing resets it.
+    const combo = blocked ? 0 : (a.comboClock > 0 ? Math.min(MAX_COMBO, a.combo + 1) : 1);
+    const damage = blocked ? Math.max(1, Math.round(move.damage * .16)) : move.damage + 2 * (combo - 1);
+    a.combo = combo;
+    a.comboClock = blocked ? 0 : COMBO_WINDOW;
     b.health = clamp(b.health - damage, 0, 100);
     b.stamina = clamp(b.stamina - (blocked ? move.damage * .80 : 5), 0, 100);
-    a.meter = clamp(a.meter + (blocked ? 5 : move.gain), 0, 100);
+    a.meter = clamp(a.meter + (blocked ? 5 : move.gain + 3 * (combo - 1)), 0, 100);
     b.meter = clamp(b.meter + (blocked ? 3 : 8), 0, 100);
     b.x = clamp(b.x + Math.sign(b.x - a.x) * (blocked ? 5 : move.knock), 80, 880);
-    if (!blocked) { b.stun = kind === "special" ? .38 : (kind === "jab" ? .10 : .23); b.attack = null; b.hitPending = false; }
+    if (!blocked) {
+      b.stun = kind === "special" ? .38 : (kind === "jab" ? .10 : .23);
+      b.attack = null;
+      b.hitPending = false;
+      b.combo = 0;
+      b.comboClock = 0;
+    }
     if (blocked && b.stamina <= 0) { b.guard = false; b.stun = .8; game.events.push({ type: "guardBreak", who: 1 - index }); }
-    game.events.push({ type: blocked ? "block" : "hit", who: index, target: 1 - index, damage, kind });
+    game.events.push({ type: blocked ? "block" : "hit", who: index, target: 1 - index, damage, kind, combo });
   }
   function decideAI(game, dt, random) {
     const a = game.fighters[1], p = game.fighters[0], ai = game.ai;
@@ -133,6 +150,8 @@
       const f = game.fighters[i], enemy = game.fighters[1 - i], input = controls[i];
       f.facing = f.x < enemy.x ? 1 : -1;
       f.stun = Math.max(0, f.stun - delta);
+      f.comboClock = Math.max(0, f.comboClock - delta);
+      if (f.comboClock === 0) f.combo = 0;
       f.cooldown = Math.max(0, f.cooldown - delta);
       f.dodge = Math.max(0, f.dodge - delta);
       f.dodgeCooldown = Math.max(0, f.dodgeCooldown - delta);
@@ -161,7 +180,7 @@
     settle(game);
     return game.events;
   }
-  const api = { WIDTH, ROUND_SECONDS, ROUNDS_TO_WIN, RIVALS, MOVES, createMatch, startRound, startNextRound, beginAttack, step };
+  const api = { WIDTH, ROUND_SECONDS, ROUNDS_TO_WIN, COMBO_WINDOW, MAX_COMBO, RIVALS, MOVES, createMatch, startRound, startNextRound, beginAttack, step };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   root.FightCore = api;
 })(typeof window !== "undefined" ? window : globalThis);

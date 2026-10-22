@@ -90,3 +90,48 @@ test("draw replays the current round without awarding a point", () => {
   Combat.startNextRound(game);
   assert.equal(game.round, 1);
 });
+test("three timed clean jabs build a capped combo and bonus damage", () => {
+  const g = Combat.createMatch(); Combat.startRound(g);
+  g.fighters[1].x = 367; g.ai.clock = 999; g.ai.move = 0; g.ai.action = null;
+  const hits = [];
+  for (let i = 0; i < 105; i++) {
+    const event = Combat.step(g, { action: [0,29,62].includes(i) ? "jab" : null }, 1/60, () => .99);
+    hits.push(...event.filter(e => e.type === "hit" && e.who === 0));
+  }
+  assert.deepEqual(hits.map(e => e.combo), [1,2,3]);
+  assert.deepEqual(hits.map(e => e.damage), [8,10,12]);
+  assert.equal(g.fighters[0].combo, 3);
+  assert.ok(g.fighters[0].meter >= Combat.MOVES.jab.gain * 3);
+});
+test("whiff breaks chain and adds a punishable recovery window", () => {
+  const g = Combat.createMatch(); Combat.startRound(g);
+  g.fighters[1].x = 367; g.ai.clock = 999; g.ai.move = 0; g.ai.action = null;
+  advance(g, 22, { action:"jab" });
+  assert.equal(g.fighters[0].combo, 1);
+  g.fighters[1].x = 675;
+  let events = [];
+  for (let i = 0; i < 21; i++) events.push(...Combat.step(g, { action: i===0?"jab":null }, 1/60, () => .99));
+  assert.ok(events.some(e => e.type === "whiff" && e.who === 0));
+  assert.equal(g.fighters[0].combo, 0);
+  assert.ok(g.fighters[0].cooldown > 0.17, "Whiff should leave extra cooldown after impact frame");
+});
+test("a successful block interrupts a clean-hit chain", () => {
+  const g = Combat.createMatch(); Combat.startRound(g);
+  g.fighters[1].x = 367; g.ai.clock = 999; g.ai.move = 0; g.ai.action = null;
+  advance(g, 22, { action:"jab" });
+  assert.equal(g.fighters[0].combo, 1);
+  g.ai.guard = true;
+  let events=[];
+  for (let i=0;i<25;i++) events.push(...Combat.step(g,{action:i===0?"jab":null},1/60,()=>.99));
+  assert.ok(events.some(e=>e.type==="block"));
+  assert.equal(g.fighters[0].combo, 0);
+});
+test("inactive combos expire after the timing window", () => {
+  const g = Combat.createMatch(); Combat.startRound(g);
+  g.fighters[1].x = 367; g.ai.clock=999; g.ai.move=0; g.ai.action=null;
+  advance(g, 22, { action: "jab" });
+  assert.equal(g.fighters[0].combo, 1);
+  advance(g, Math.ceil(Combat.COMBO_WINDOW*60)+10);
+  assert.equal(g.fighters[0].combo, 0);
+  assert.equal(g.fighters[0].comboClock, 0);
+});
