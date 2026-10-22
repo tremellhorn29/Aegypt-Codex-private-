@@ -1,7 +1,7 @@
 name: Street Kings combat checks
 on:
   push:
-    branches: [main, "feature/street-kings-combat-rebuild"]
+    branches: [main, "feature/**"]
   pull_request:
     branches: [main]
 permissions:
