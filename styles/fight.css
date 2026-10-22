@@ -9,5 +9,5 @@
 /* DualShock 4/standard Gamepad status remains visible on mobile. */
 .controller-status{display:inline-flex;align-items:center;justify-content:center;max-width:182px;padding:5px 7px;color:#7df0cb;background:#112b30;border:1px solid #397b71;border-radius:5px;font-size:.58rem;font-weight:900;letter-spacing:.035em;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .controller-guide{font-size:.70rem;line-height:1.4;color:#83e2d0;background:#102f35;border-left:3px solid #58e1bd;padding:8px 10px;margin:9px 0}
-@media(max-width:750px){.controller-status{font-size:.51rem;padding:4px;max-width:145px}.controller-guide{font-size:.63rem;padding:6px 8px}}
-@media(max-width:400px){.controller-status{max-width:115px;font-size:.45rem}}
+@media(max-width:750px){.header-right{gap:5px}.controller-status{font-size:.47rem;padding:4px;max-width:98px}.controller-guide{font-size:.63rem;padding:6px 8px}}
+@media(max-width:400px){.brand{gap:5px}.controller-status{max-width:79px;font-size:.42rem}}
