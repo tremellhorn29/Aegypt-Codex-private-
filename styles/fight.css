@@ -5,3 +5,9 @@
 @media(max-width:400px){.brand .kicker{font-size:.48rem}.brand strong{font-size:1.25rem}.round-pips{font-size:.62rem}.round-center strong{font-size:2.5rem}.control-deck{gap:8px}.movement-deck{flex-basis:83px}.move-btn{width:39px}.control-btn{min-height:54px;padding:4px 2px}.control-btn b{font-size:.9rem}.menu-art{min-height:105px}.menu-art strong{font-size:3.8rem}.menu-content h1{font-size:2.35rem}}
 @media(orientation:landscape) and (max-height:570px){.site-header{height:39px}.fight-hud{padding:4px 0}.round-center strong{font-size:2rem}.fighter-meta strong{font-size:1.3rem}.track-label{display:none}.health-track{height:12px}.sub-track{margin-top:3px}.control-deck{margin-top:6px;padding:5px 9px}.deck-title{display:none}.control-btn{min-height:40px}.control-btn small{display:none}.combat-buttons{grid-template-columns:repeat(6,minmax(0,1fr))}.shell{max-width:800px}.foot{display:none}.overlay{align-items:flex-start}.menu-art{display:none}.main-menu{max-width:560px}.menu-content{padding:15px}.menu-content h1{font-size:2.4rem}.menu-copy{font-size:.69rem}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* DualShock 4/standard Gamepad status remains visible on mobile. */
+.controller-status{display:inline-flex;align-items:center;justify-content:center;max-width:182px;padding:5px 7px;color:#7df0cb;background:#112b30;border:1px solid #397b71;border-radius:5px;font-size:.58rem;font-weight:900;letter-spacing:.035em;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.controller-guide{font-size:.70rem;line-height:1.4;color:#83e2d0;background:#102f35;border-left:3px solid #58e1bd;padding:8px 10px;margin:9px 0}
+@media(max-width:750px){.controller-status{font-size:.51rem;padding:4px;max-width:145px}.controller-guide{font-size:.63rem;padding:6px 8px}}
+@media(max-width:400px){.controller-status{max-width:115px;font-size:.45rem}}
