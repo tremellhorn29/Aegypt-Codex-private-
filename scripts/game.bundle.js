@@ -70,8 +70,8 @@
   }
   function setPos(node, x, y) { node.style.left = x + 'px'; node.style.top = y + 'px'; }
   function overlap(a, b) { return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y; }
-  function safeLoad() { try { return JSON.parse(localStorage.getItem('fastln_save_v2') || 'null'); } catch (_) { return null; } }
-  function safeSave(data) { try { localStorage.setItem('fastln_save_v2', JSON.stringify(data)); } catch (_) {} }
+  function safeLoad() { try { return JSON.parse(localStorage.getItem('fastln_save_v3') || localStorage.getItem('fastln_save_v2') || 'null'); } catch (_) { return null; } }
+  function safeSave(data) { try { localStorage.setItem('fastln_save_v3', JSON.stringify(data)); return true; } catch (_) { return false; } }
   function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
 
   function injectInterface() {
@@ -118,13 +118,13 @@
     };
     if (!el.world || !el.camera || !el.start) return;
 
-    var saved = safeLoad();
+    var saved = safeLoad(), restored = FastLife.restore(saved);
     var state = {
       player: { x: 120, y: 820, w: 38, h: 52, speed: 3.2 }, cam: { x: 0, y: 0 },
-      keys: { w: false, a: false, s: false, d: false }, talked: {}, decisions: {}, missionStage: 0,
+      keys: { w: false, a: false, s: false, d: false }, talked: restored.talked, decisions: restored.decisions, missionStage: restored.missionStage, life: restored.life,
       running: false, paused: false, dialogueOpen: false, choiceOpen: false, activeCrew: null, selectedChoice: 0,
-      reputation: saved && saved.reputation || 0,
-      stats: saved && saved.stats || { money: 20, energy: 85, knowledge: 10, relationships: 5, legacy: 0 },
+      reputation: restored.reputation,
+      stats: restored.stats,
       gamepad: { index: null, prevButtons: {}, connected: false }
     };
 
@@ -137,11 +137,19 @@
     function show(node) { if (!node) return; node.classList.remove('hidden'); node.classList.add('visible'); }
     function hide(node) { if (!node) return; node.classList.add('hidden'); node.classList.remove('visible'); }
     function talkedCount() { return Object.keys(state.talked).length; }
-    function persist() { safeSave({ reputation: state.reputation, stats: state.stats, decisions: state.decisions }); }
+    function persist() {
+      var ok = safeSave({ version: 3, reputation: state.reputation, stats: state.stats, decisions: state.decisions, life: state.life });
+      $('#saveStatus').textContent = ok ? 'PROGRESS SAVED' : 'SAVE UNAVAILABLE — KEEP THIS TAB OPEN';
+      return ok;
+    }
     function render() {
       el.rep.textContent = state.reputation; el.money.textContent = state.stats.money; el.energy.textContent = state.stats.energy;
       el.knowledge.textContent = state.stats.knowledge; el.relationships.textContent = state.stats.relationships; el.legacy.textContent = state.stats.legacy;
-      if (state.missionStage === 0) el.progress.textContent = talkedCount() + ' / ' + CREW.length + ' connections made';
+      $('#dayStatus').textContent = 'DAY ' + state.life.day + (state.life.day > 1 ? ' • ' + state.life.remaining + '/3 BLOCKS LEFT' : ' • FIRST MOVE');
+      $('.phone-device header small').textContent = 'DAY ' + state.life.day + (state.life.day > 1 ? ' • ' + ['EVENING', 'AFTERNOON', 'MIDDAY', 'MORNING'][state.life.remaining] : ' • NIGHT');
+      el.mission.textContent = state.missionStage === 0 ? 'Meet the crew before the day gets away.' : state.missionStage < 3 ? 'The Night Splits: return to the Family Couch.' : state.life.day === 1 ? 'First Move complete. Open Calendar to begin Day 2.' : 'Build your day: work, learn, and show up for family.';
+      if (state.life.day > 1) el.progress.textContent = 'Balance bonus: ' + ['shift', 'study', 'family'].filter(function (id) { return state.life.done.indexOf(id) >= 0; }).length + '/3 • Work + study + family = +1 legacy';
+      else if (state.missionStage === 0) el.progress.textContent = talkedCount() + ' / ' + CREW.length + ' connections made';
       else el.progress.textContent = Object.keys(state.decisions).length + ' choices now shaping your story';
     }
     function toast(text) { el.consequence.textContent = text; show(el.consequence); clearTimeout(toast.timer); toast.timer = setTimeout(function () { hide(el.consequence); }, 2600); }
@@ -181,12 +189,12 @@
     function applyEffects(effects) {
       Object.keys(effects || {}).forEach(function (key) {
         if (key === 'reputation') state.reputation = Math.max(0, state.reputation + effects[key]);
-        else if (state.stats.hasOwnProperty(key)) state.stats[key] = Math.max(0, state.stats[key] + effects[key]);
+        else if (state.stats.hasOwnProperty(key)) state.stats[key] = clamp(state.stats[key] + effects[key], 0, key === 'energy' ? 100 : 1000000);
       });
       persist(); render();
     }
     function openChoices(crew) {
-      state.choiceOpen = true; state.activeCrew = crew; state.selectedChoice = 0; state.paused = true;
+      clearMovement(); state.choiceOpen = true; state.activeCrew = crew; state.selectedChoice = 0; state.paused = true;
       el.choicePrompt.textContent = crew.name.toUpperCase() + ' — THIS CHOICE WILL BE REMEMBERED'; el.choiceList.innerHTML = '';
       crew.choices.forEach(function (choice, index) {
         var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'choice-btn' + (index === 0 ? ' selected' : ''); btn.textContent = choice.text;
@@ -194,7 +202,7 @@
       });
       show(el.choicePanel);
     }
-    function closeChoices() { state.choiceOpen = false; state.paused = false; hide(el.choicePanel); }
+    function closeChoices() { state.choiceOpen = false; state.paused = false; hide(el.choicePanel); if (state.missionStage === 2 && !state.decisions.finale) state.missionStage = 1; }
     function moveChoice(delta) {
       if (!state.choiceOpen) return; var buttons = $all('.choice-btn'); if (!buttons.length) return;
       state.selectedChoice = (state.selectedChoice + delta + buttons.length) % buttons.length;
@@ -202,9 +210,9 @@
     }
     function choose(index) {
       if (!state.choiceOpen || !state.activeCrew) return;
-      var crew = state.activeCrew, choice = crew.choices[index]; state.decisions[crew.id] = choice.flag; applyEffects(choice.effects);
+      var crew = state.activeCrew, choice = crew.choices[index]; if (!choice || state.decisions[crew.id]) return; state.decisions[crew.id] = choice.flag; applyEffects(choice.effects);
       closeChoices(); say(crew, choice.result); toast('YOUR CHOICE: ' + choice.text + ' — THIS WILL BE REMEMBERED');
-      if (!state.talked[crew.id]) { state.talked[crew.id] = true; state.reputation += 3; state.stats.relationships += 2; }
+      if (crew.id !== 'finale' && !state.talked[crew.id]) { state.talked[crew.id] = true; state.reputation += 3; state.stats.relationships += 2; }
       render(); persist();
       if (talkedCount() === CREW.length && state.missionStage === 0) advanceStory();
     }
@@ -215,7 +223,7 @@
         var crew = CREW[i];
         if (Math.abs(state.player.x - crew.x) < 72 && Math.abs(state.player.y - crew.y) < 82) {
           if (state.decisions[crew.id]) { say(crew, 'You already chose your lane with me. Now live with what that choice opens—and closes.'); return; }
-          say(crew, crew.intro); setTimeout(function (c) { return function () { if (state.dialogueOpen) openChoices(c); }; }(crew), 500); return;
+          say(crew, crew.intro); openChoices(crew); return;
         }
       }
       say('SYSTEM', 'Nobody is close enough. Move toward a named character and press A.');
@@ -236,47 +244,76 @@
             { text: 'Sleep. Protect tomorrow.', result: 'You shut the laptop. Discipline becomes its own kind of ambition.', effects: { energy: 15, knowledge: 2, legacy: 2 }, flag: 'protectedTomorrow' }
           ]
         };
-        setTimeout(function () { openChoices(state.activeCrew); }, 450);
+        openChoices(state.activeCrew);
       }
     }
     function finishFinaleIfNeeded() {
-      if (state.missionStage === 2 && state.decisions.finale) {
+      if (state.missionStage < 3 && state.decisions.finale) {
         state.missionStage = 3; el.mission.textContent = 'Episode 1 complete: the first move became a direction.';
         el.progress.textContent = 'Your decisions are saved for the next episode';
         el.missionFx.textContent = 'EPISODE COMPLETE • CONSEQUENCES SAVED'; el.missionFx.classList.remove('hidden');
-        setTimeout(function () { el.missionFx.classList.add('hidden'); }, 2200); persist();
+        setTimeout(function () { el.missionFx.classList.add('hidden'); }, 2200); persist(); render();
       }
     }
 
-    function setPaused(value) { state.paused = value; clearMovement(); value ? show(el.pause) : hide(el.pause); }
-    function openPhone(app) {
-      state.paused = true; clearMovement(); app = app || 'messages';
-      var decisionList = Object.keys(state.decisions).map(function (k) { return '<p><b>' + k.toUpperCase() + ':</b> ' + state.decisions[k] + '</p>'; }).join('') || '<p>No major choices recorded yet.</p>';
-      var content = {
-        messages: ['Messages', '<p><b>Nova:</b> Everybody is waiting downstairs.</p><p><b>Home:</b> Handle what matters before chasing what shines.</p>'],
-        missions: ['Missions', '<p><b>Current:</b> ' + el.mission.textContent + '</p><p><b>Consequences:</b></p>' + decisionList],
-        jobs: ['Jobs', '<p><b>Corner Store:</b> Stock shelves after school.<br>Pay: $35 • Cost: 20 Energy</p><p><b>Promoter:</b> Possible opening—depends on earlier choices.</p>'],
-        school: ['School', '<p>Knowledge: <b>' + state.stats.knowledge + '</b></p><p>Assignment: Personal Vision Statement.</p>'],
-        bank: ['Bank', '<p>Available balance</p><h2>$' + state.stats.money + '.00</h2><p>No shortcuts. Every dollar needs a purpose.</p>'],
-        calendar: ['Calendar', '<p><b>Tonight:</b> Crew decisions</p><p><b>Tomorrow:</b> School • Shift • Family</p>']
-      };
-      var chosen = content[app] || content.messages; el.phoneContent.innerHTML = '<h3>' + chosen[0] + '</h3>' + chosen[1]; show(el.phone);
+    function setPaused(value) {
+      if (!state.running || state.choiceOpen || !el.phone.classList.contains('hidden')) return;
+      state.paused = value; clearMovement(); value ? show(el.pause) : hide(el.pause);
     }
+    function escapeText(text) { var node = document.createElement('span'); node.textContent = text; return node.innerHTML; }
+    var activeApp = 'messages';
+    function activityCards(app) {
+      return FastLife.activities.filter(function (a) { return a.app === app; }).map(function (a) {
+        var blocked = FastLife.reason(state, a), reward = FastLife.effects(state, a);
+        var gains = Object.keys(reward).map(function (key) { return '+' + reward[key] + ' ' + key; }).join(' • ');
+        return '<section class="activity-card"><h4>' + a.title + '</h4><p>' + a.detail + '</p><small>1 block • ' + a.energy + ' energy' + (a.cost ? ' • $' + a.cost : '') + '</small><strong>' + gains + '</strong><button class="life-action" data-activity="' + a.id + '" ' + (blocked ? 'disabled' : '') + '>' + (blocked || 'Do activity') + '</button></section>';
+      }).join('');
+    }
+    function openPhone(app) {
+      if (!state.running || state.choiceOpen || state.dialogueOpen || !el.pause.classList.contains('hidden')) return;
+      state.paused = true; clearMovement(); activeApp = app || 'messages';
+      var decisionList = Object.keys(state.decisions).map(function (k) { return '<p><b>' + k.toUpperCase() + ':</b> ' + state.decisions[k] + '</p>'; }).join('') || '<p>No major choices recorded yet.</p>';
+      var daily = state.life.day > 1;
+      var content = {
+        messages: ['Messages', '<p><b>Home:</b> ' + (daily ? 'Three blocks. Make room for what matters. Family time is in Calendar.' : 'Meet the crew, then come home. Tomorrow opens after First Move.') + '</p><p><b>Jett:</b> Study to unlock skilled work at 25 knowledge and studio sessions at 20.</p>' + (state.life.recap ? '<p>' + escapeText(state.life.recap) + '</p>' : '')],
+        missions: ['Missions', '<p><b>Current:</b> ' + el.mission.textContent + '</p><p>Daily balance: complete a shift, study, and family time in one day for +1 legacy. Studio sessions offer another path.</p>' + decisionList],
+        jobs: ['Jobs', activityCards('jobs')],
+        school: ['School', '<p>Knowledge: <b>' + state.stats.knowledge + '</b> • Skilled shifts unlock at 25.</p>' + activityCards('school')],
+        bank: ['Bank', '<p>Available balance</p><h2>$' + state.stats.money + '.00</h2><p>Work pays immediately. Studio supplies cost $10; a promoter connection pays $20 per session.</p>' + state.life.log.map(function (line) { return '<p>' + escapeText(line) + '</p>'; }).join('')],
+        calendar: ['Calendar', '<p><b>Day ' + state.life.day + '</b> • ' + (daily ? state.life.remaining + '/3 blocks available. Time advances only when you choose an activity.' : 'Finish the crew story to unlock your daily routine.') + '</p>' + activityCards('calendar') + (state.missionStage === 3 ? '<button class="life-action" id="sleepBtn">' + (daily ? 'Review day & sleep' : 'Begin Day 2') + '</button><p>Sleep restores 35 energy (maximum 100). Unused blocks do not carry over.</p>' : '') + (state.life.recap ? '<p>' + escapeText(state.life.recap) + '</p>' : '')]
+      };
+      var chosen = content[activeApp] || content.messages;
+      el.phoneContent.innerHTML = '<h3>' + chosen[0] + '</h3><div id="activityFeedback" role="status"></div>' + chosen[1]; show(el.phone);
+      $all('[data-app]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-app') === activeApp)); });
+    }
+    el.phoneContent.addEventListener('click', function (event) {
+      var button = event.target.closest('button'); if (!button || !state.running) return;
+      var id = button.getAttribute('data-activity');
+      if (id) {
+        var result = FastLife.perform(state, id); render(); persist(); openPhone(activeApp);
+        $('#activityFeedback').textContent = result.message;
+      } else if (button.id === 'sleepBtn') {
+        el.phoneContent.innerHTML = '<h3>Close Day ' + state.life.day + '?</h3><p>' + state.life.remaining + ' unused blocks will expire. Recover 35 energy.</p>' + state.life.log.map(function (line) { return '<p>' + escapeText(line) + '</p>'; }).join('') + '<button class="life-action" id="confirmSleep">Sleep & start next day</button><button class="life-action secondary" id="cancelSleep">Keep planning</button>';
+      } else if (button.id === 'confirmSleep') {
+        if (FastLife.nextDay(state)) { render(); persist(); openPhone('calendar'); }
+      } else if (button.id === 'cancelSleep') openPhone('calendar');
+    });
     function resetGame() {
-      state.player.x = 120; state.player.y = 820; state.talked = {}; state.decisions = {}; state.missionStage = 0;
+      state.player.x = 120; state.player.y = 820; state.talked = {}; state.decisions = {}; state.missionStage = 0; state.life = FastLife.fresh(); state.paused = false;
       state.reputation = 0; state.stats = { money: 20, energy: 85, knowledge: 10, relationships: 5, legacy: 0 };
       state.dialogueOpen = false; state.choiceOpen = false; closeDialogue(); hide(el.choicePanel); setPos(player, state.player.x, state.player.y);
       el.mission.textContent = 'Meet the crew before the day gets away.'; render(); updateCamera(true); persist();
     }
 
     function primaryAction() {
+      if (!state.running || !el.phone.classList.contains('hidden')) return;
       if (state.choiceOpen) choose(state.selectedChoice);
       else if (!el.pause.classList.contains('hidden')) setPaused(false);
       else interact();
     }
     function backAction() { if (!closeTopLayer() && state.running) setPaused(true); }
 
-    $('#newGameBtn').addEventListener('click', function () { resetGame(); hide(el.start); show(el.tutorial); });
+    $('#newGameBtn').addEventListener('click', function () { if (saved && !window.confirm('Start over? This replaces your saved story and daily progress.')) return; resetGame(); hide(el.start); show(el.tutorial); });
     $('#continueBtn').addEventListener('click', function () { hide(el.start); state.running = true; updateCamera(true); });
     $('#creditsBtn').addEventListener('click', function () { el.startInfo.textContent = 'Created by Tremell Horn • Built for legacy.'; });
     $('#startRunBtn').addEventListener('click', function () { hide(el.tutorial); state.running = true; updateCamera(true); });
@@ -297,6 +334,8 @@
 
     window.addEventListener('keydown', function (event) {
       var key = event.key.toLowerCase();
+      if (event.repeat && ['e', 'enter', ' ', 'p', 'q', 'escape'].indexOf(key) >= 0) return;
+      if (!el.phone.classList.contains('hidden') && (key === 'enter' || key === ' ')) return;
       if (key === 'escape' || key === 'backspace' || key === 'q') { event.preventDefault(); backAction(); return; }
       if (state.choiceOpen && (key === 'arrowup' || key === 'w')) { event.preventDefault(); moveChoice(-1); return; }
       if (state.choiceOpen && (key === 'arrowdown' || key === 's')) { event.preventDefault(); moveChoice(1); return; }
@@ -331,7 +370,9 @@
     window.addEventListener('gamepadconnected', function (event) { state.gamepad.index = event.gamepad.index; state.gamepad.connected = true; toast('CONTROLLER CONNECTED — X = A, CIRCLE = B, OPTIONS = PAUSE'); });
     window.addEventListener('gamepaddisconnected', function () { state.gamepad.index = null; state.gamepad.connected = false; state.gamepad.prevButtons = {}; });
 
-    function tick() {
+    var lastFrame = 0;
+    function tick(now) {
+      var scale = Math.min((now - (lastFrame || now)) / (1000 / 60), 2); lastFrame = now;
       var stick = pollGamepad();
       if (state.running && !state.paused && !state.dialogueOpen && !state.choiceOpen) {
         var v = movementVector(), dx = v.x, dy = v.y;
@@ -339,11 +380,13 @@
           var mag = Math.sqrt(stick.x * stick.x + stick.y * stick.y) || 1;
           dx = stick.x / Math.max(1, mag) * state.player.speed; dy = stick.y / Math.max(1, mag) * state.player.speed;
         }
-        if (dx || dy) applyMove(dx, dy); updateCamera(false); checkStoryTrigger();
+        if (dx || dy) applyMove(dx * scale, dy * scale); updateCamera(false); checkStoryTrigger();
       }
       finishFinaleIfNeeded(); requestAnimationFrame(tick);
     }
 
+    $('#continueBtn').disabled = !saved;
+    if (saved) el.startInfo.textContent = 'Continue your saved story • Day ' + state.life.day;
     render(); show(el.start); requestAnimationFrame(tick);
   }
 

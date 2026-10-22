@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>FAST LN Origins — First Move</title>
-  <link rel="stylesheet" href="styles/main.css?v=9" />
-  <link rel="stylesheet" href="styles/mobile-fix.css?v=9" />
+  <link rel="stylesheet" href="styles/main.css?v=10" />
+  <link rel="stylesheet" href="styles/mobile-fix.css?v=10" />
 </head>
 <body>
   <div id="app" class="game-shell">
@@ -34,6 +34,7 @@
 
     <main class="game-wrap">
       <div id="camera" class="camera"><div id="world" class="world" aria-label="Urban apartment and block scene"></div></div>
+      <div class="day-strip"><span id="dayStatus">DAY 1 • FIRST MOVE</span><small id="saveStatus" role="status">AUTO-SAVE READY</small></div>
       <div id="locationBanner" class="location-banner">SOUTH COVE • APARTMENT BLOCK</div>
       <div id="dialogue" class="dialogue hidden">
         <div id="portrait" class="dialogue-portrait"></div>
@@ -94,7 +95,7 @@
           <li>Press A, E, or Cross to interact and confirm decisions.</li>
           <li>Press B, Q, or Circle to close dialogue, cancel, or go back.</li>
           <li>Your decisions change money, energy, knowledge, reputation, relationships, and legacy.</li>
-          <li>Meeting the crew is only the first chapter of the night.</li>
+          <li>Finish First Move, then use your phone to work, study, spend family time, and rest. Each day gives you three time blocks.</li>
         </ul>
         <button class="menu-btn" id="startRunBtn" type="button">Step Outside</button>
       </div>
@@ -108,6 +109,7 @@
       </div>
     </section>
   </div>
-  <script defer src="scripts/game.bundle.js?v=9"></script>
+  <script defer src="scripts/systems/life.js?v=10"></script>
+  <script defer src="scripts/game.bundle.js?v=10"></script>
 </body>
 </html>
