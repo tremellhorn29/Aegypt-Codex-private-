@@ -1,115 +1,49 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>FAST LN Origins — First Move</title>
-  <link rel="stylesheet" href="styles/main.css?v=10" />
-  <link rel="stylesheet" href="styles/mobile-fix.css?v=10" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#090d17">
+  <meta name="description" content="FAST LN: Street Kings, a free-to-play, mobile-first, round-based arcade fighting game.">
+  <title>FAST LN: STREET KINGS</title>
+  <link rel="stylesheet" href="styles/fight.css?v=1">
 </head>
 <body>
-  <div id="app" class="game-shell">
-    <header class="hud top">
-      <section class="brand-card">
-        <p class="eyebrow">FAST LN ORIGINS</p>
-        <h1>FIRST MOVE</h1>
-        <p>STAR • AGE 14 • DAY 1</p>
-      </section>
-      <section class="mission-card">
-        <span class="chapter-tag">EPISODE 1</span>
-        <h2 id="missionText">Meet the crew before the day gets away.</h2>
-        <div id="objectiveProgress" class="progress-copy">0 / 5 connections made</div>
-      </section>
-      <button id="phoneBtn" class="phone-launch" type="button" aria-label="Open phone">📱</button>
+  <main class="shell">
+    <header class="site-header">
+      <div class="brand"><span class="bolt">✦</span><div><div class="kicker">FAST LN PRESENTS</div><strong>STREET <em>KINGS</em></strong></div></div>
+      <div class="header-right"><span class="season-tag">SEASON 01 <i>•</i> THE BLOCK</span><button id="soundBtn" class="icon-btn" type="button" aria-label="Toggle sound" aria-pressed="true">♫</button><button id="pauseBtn" class="icon-btn" type="button" aria-label="Pause match">Ⅱ</button></div>
     </header>
-
-    <section class="stats-strip" aria-label="Life statistics">
-      <div><span>💵</span><strong id="moneyValue">20</strong><small>MONEY</small></div>
-      <div><span>⚡</span><strong id="energyValue">85</strong><small>ENERGY</small></div>
-      <div><span>🧠</span><strong id="knowledgeValue">10</strong><small>KNOWLEDGE</small></div>
-      <div><span>⭐</span><strong id="repValue">0</strong><small>REP</small></div>
-      <div><span>🤝</span><strong id="relationshipValue">5</strong><small>RELATIONS</small></div>
-      <div><span>👑</span><strong id="legacyValue">0</strong><small>LEGACY</small></div>
+    <section class="fight-hud" aria-label="Match scoreboard">
+      <div class="fighter-panel left-panel"><div class="fighter-meta"><span class="player-number">01 / THE CHALLENGER</span><strong>STAR</strong><span id="playerWins" class="round-pips" aria-label="Player rounds won">◇ ◇</span></div><div class="health-track"><div id="playerHealth" class="health-fill player-health"></div></div><div class="sub-track"><div id="playerStamina" class="stamina-fill"></div></div><span class="track-label">HEALTH <span id="playerHpLabel">100</span> <span class="divider-dot">·</span> STAMINA</span></div>
+      <div class="round-center"><span id="roundLabel">ROUND 1</span><strong id="timer">50</strong><small>SECONDS</small></div>
+      <div class="fighter-panel right-panel"><div class="fighter-meta"><span class="player-number">02 / <span id="enemyTitle">THE CORNER ROOKIE</span></span><strong id="enemyName">ROOK</strong><span id="enemyWins" class="round-pips" aria-label="Opponent rounds won">◇ ◇</span></div><div class="health-track"><div id="enemyHealth" class="health-fill enemy-health"></div></div><div class="sub-track"><div id="enemyStamina" class="stamina-fill"></div></div><span class="track-label">HEALTH <span id="enemyHpLabel">100</span> <span class="divider-dot">·</span> STAMINA</span></div>
     </section>
-
-    <main class="game-wrap">
-      <div id="camera" class="camera"><div id="world" class="world" aria-label="Urban apartment and block scene"></div></div>
-      <div class="day-strip"><span id="dayStatus">DAY 1 • FIRST MOVE</span><small id="saveStatus" role="status">AUTO-SAVE READY</small></div>
-      <div id="locationBanner" class="location-banner">SOUTH COVE • APARTMENT BLOCK</div>
-      <div id="dialogue" class="dialogue hidden">
-        <div id="portrait" class="dialogue-portrait"></div>
-        <div><h3 id="speaker">Crew</h3><p id="dialogueText"></p></div>
-      </div>
-      <div id="missionFx" class="mission-fx hidden">MISSION COMPLETE • LEGACY +1</div>
-      <section id="touchControls" class="touch-controls" aria-label="Touch game controls">
-        <div class="dpad" aria-label="Movement controls">
-          <button class="touch-btn dpad-up" type="button" data-key="w" aria-label="Move up">▲</button>
-          <button class="touch-btn dpad-left" type="button" data-key="a" aria-label="Move left">◀</button>
-          <button class="touch-btn dpad-down" type="button" data-key="s" aria-label="Move down">▼</button>
-          <button class="touch-btn dpad-right" type="button" data-key="d" aria-label="Move right">▶</button>
-        </div>
-        <div class="action-pad">
-          <button id="touchInteract" class="touch-btn action-btn interact-btn" type="button" aria-label="Action">A</button>
-          <button id="touchPause" class="touch-btn action-btn pause-btn" type="button" aria-label="Pause">Ⅱ</button>
-        </div>
-      </section>
-    </main>
-
-    <footer class="bottom-bar">
-      <span>MOVE</span><b>WASD / STICK</b><span>ACTION</span><b>A / E</b><span>BACK</span><b>B / Q</b>
-    </footer>
-
-    <section id="phoneOverlay" class="phone-overlay hidden" aria-label="In-game phone">
-      <div class="phone-device">
-        <header><div><small>9:14 PM</small><strong>FAST LN</strong></div><button id="phoneClose" type="button" aria-label="Close phone">×</button></header>
-        <div class="phone-grid">
-          <button data-app="messages"><span>💬</span>Messages</button>
-          <button data-app="missions"><span>🎯</span>Missions</button>
-          <button data-app="jobs"><span>💼</span>Jobs</button>
-          <button data-app="school"><span>📚</span>School</button>
-          <button data-app="bank"><span>💳</span>Bank</button>
-          <button data-app="calendar"><span>📅</span>Calendar</button>
-        </div>
-        <article id="phoneContent" class="phone-content"><h3>Messages</h3><p><b>Nova:</b> Everybody is waiting downstairs.</p></article>
-      </div>
+    <section class="arena-wrap" aria-label="Fighting arena">
+      <canvas id="arena" width="960" height="520" aria-label="Two fighters facing off in the neon South Cove street arena. Use combat controls to play."></canvas>
+      <div class="arena-topline"><span><i class="live-indicator"></i> SOUTH COVE / UNDER THE LIGHTS</span><span id="arenaStatus">READY TO FIGHT</span></div>
+      <div id="fightAnnouncement" class="fight-announcement" aria-live="polite">FIGHT!</div>
+      <div class="meter-row"><div class="meter-box"><span>STAR POWER</span><div class="power-track"><div id="playerPower"></div></div><small id="playerPowerLabel">0%</small></div><div class="meter-box rival-meter"><span>RIVAL POWER</span><div class="power-track"><div id="enemyPower"></div></div><small id="enemyPowerLabel">0%</small></div></div>
     </section>
-
-    <section id="startScreen" class="overlay visible">
-      <div class="start-card">
-        <p class="eyebrow">AN URBAN LIFE & LEGACY RPG</p>
-        <h2>FAST LN<br><span>ORIGINS</span></h2>
-        <p>Every day costs energy. Every choice leaves a name behind.</p>
-        <button class="menu-btn" id="newGameBtn" type="button">Begin Day One</button>
-        <button class="menu-btn secondary" id="continueBtn" type="button">Continue</button>
-        <button class="menu-btn ghost" id="creditsBtn" type="button">Credits</button>
-        <p id="startInfo">Build money. Protect relationships. Create legacy.</p>
-      </div>
+    <section class="control-deck" aria-label="Fight controls">
+      <div class="movement-deck"><span class="deck-title">FOOTWORK</span><div class="movement-buttons"><button class="control-btn move-btn" data-hold="left" aria-label="Move left" type="button">◀</button><button class="control-btn move-btn" data-hold="right" aria-label="Move right" type="button">▶</button></div></div>
+      <div class="combat-deck"><span class="deck-title">COMBAT</span><div class="combat-buttons"><button class="control-btn attack jab" data-action="jab" type="button"><b>JAB</b><small>J</small></button><button class="control-btn attack hook" data-action="hook" type="button"><b>HOOK</b><small>K</small></button><button class="control-btn attack kick" data-action="kick" type="button"><b>KICK</b><small>L</small></button><button class="control-btn guard" data-hold="guard" type="button"><b>GUARD</b><small>SPACE</small></button><button class="control-btn dodge" data-action="dodge" type="button"><b>DODGE</b><small>SHIFT</small></button><button id="specialBtn" class="control-btn special" data-action="special" type="button" disabled><b>FINISHER</b><small>65 POWER · U</small></button></div></div>
     </section>
-
-    <section id="tutorialOverlay" class="overlay hidden">
-      <div class="tutorial-card">
-        <p class="eyebrow">YOUR FIRST MOVE</p>
-        <h2>THE DAY IS ALREADY MOVING.</h2>
-        <ul>
-          <li>Move in eight directions with touch, keyboard, or the DualSense left stick.</li>
-          <li>Press A, E, or Cross to interact and confirm decisions.</li>
-          <li>Press B, Q, or Circle to close dialogue, cancel, or go back.</li>
-          <li>Your decisions change money, energy, knowledge, reputation, relationships, and legacy.</li>
-          <li>Finish First Move, then use your phone to work, study, spend family time, and rest. Each day gives you three time blocks.</li>
-        </ul>
-        <button class="menu-btn" id="startRunBtn" type="button">Step Outside</button>
-      </div>
-    </section>
-
-    <section id="pauseOverlay" class="overlay hidden">
-      <div class="tutorial-card">
-        <p class="eyebrow">TIME FROZEN</p><h2>PAUSED</h2>
-        <button class="menu-btn" id="resumeBtn" type="button">Resume</button>
-        <button class="menu-btn ghost" id="pauseCreditsBtn" type="button">View Credits</button>
-      </div>
-    </section>
-  </div>
-  <script defer src="scripts/systems/life.js?v=10"></script>
-  <script defer src="scripts/game.bundle.js?v=10"></script>
+    <footer class="foot"><div><span class="keycap">A</span><span class="keycap">D</span> MOVE <span class="foot-separator">/</span> <span class="keycap">J</span><span class="keycap">K</span><span class="keycap">L</span> STRIKE <span class="foot-separator">/</span> <span class="keycap">SPACE</span> GUARD <span class="foot-separator">/</span> <span class="keycap">SHIFT</span> DODGE</div><span id="recordLabel">CAREER 0W / 0L</span></footer>
+  </main>
+  <section id="menuOverlay" class="overlay" aria-label="Main menu">
+    <div class="modal main-menu">
+      <div class="menu-art"><span class="poster-stamp">FAST LN / ORIGINAL GAME</span><span class="poster-outline">STREET</span><strong>STREET<br><em>KINGS.</em></strong><span class="poster-sub">YOUR BLOCK. YOUR RULES.</span></div>
+      <div class="menu-content"><p class="kicker">THE ROAD TO THE CROWN</p><h1>TAKE YOUR<br>SHOT.</h1><p class="menu-copy">Three rivals. Best of three rounds. No account. No shortcuts. Win fights, stack cash, and earn your way to the champion.</p><div class="career-stats"><div><strong id="menuWins">0</strong><small>WINS</small></div><div><strong id="menuLosses">0</strong><small>LOSSES</small></div><div><strong id="menuCash">$0</strong><small>EARNED</small></div></div><h2 class="pick-title">CHOOSE YOUR OPPONENT</h2><div id="rivalList" class="rival-list"></div><button id="fightBtn" class="primary-btn" type="button">ENTER THE RING <span>→</span></button><p class="tiny-note">Progress saves on this device. Best on mobile in landscape or portrait.</p></div>
+    </div>
+  </section>
+  <section id="resultOverlay" class="overlay hidden" aria-label="Round result" aria-live="polite">
+    <div class="modal result-modal"><p id="resultKicker" class="kicker">ROUND COMPLETE</p><h2 id="resultHeading">KNOCKOUT</h2><p id="resultDetails"></p><div class="result-score"><div>STAR <strong id="resultPlayerWins">0</strong></div><div class="versus">VS</div><div><span id="resultEnemyName">ROOK</span> <strong id="resultEnemyWins">0</strong></div></div><button id="resultBtn" class="primary-btn" type="button">NEXT ROUND →</button><button id="exitBtn" class="secondary-btn" type="button">RETURN TO FIGHT CARD</button></div>
+  </section>
+  <section id="pauseOverlay" class="overlay hidden" aria-label="Pause menu">
+    <div class="modal pause-modal"><p class="kicker">TIME OUT</p><h2>PAUSED.</h2><p>Your opponent isn't going anywhere.</p><button id="resumeBtn" class="primary-btn" type="button">RESUME FIGHT →</button><button id="quitBtn" class="secondary-btn" type="button">QUIT TO FIGHT CARD</button></div>
+  </section>
+  <script src="scripts/fight-core.js?v=1" defer></script>
+  <script src="scripts/fighters.js?v=1" defer></script>
 </body>
 </html>

@@ -1,0 +1,22 @@
+name: Street Kings combat checks
+on:
+  push:
+    branches: [main, "feature/street-kings-combat-rebuild"]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  combat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check combat JavaScript
+        run: |
+          node --check scripts/fight-core.js
+          node --check scripts/fighters.js
+      - name: Run combat regression tests
+        run: node --test tests/fight.test.cjs
