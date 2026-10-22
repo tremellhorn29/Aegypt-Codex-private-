@@ -26,6 +26,7 @@
   let game = core.createMatch(chosen);
   let paused = false, soundOn = true, accumulator = 0, last = 0;
   let tickTime = 0, cameraShake = 0, announcer = 0, particles = [];
+  let impactFreeze = 0, comboVisible = 0;
   let pending = null, pendingDodge = false, input = { left: false, right: false, guard: false };
   let audioContext = null, settleToken = 0;
   const $all = selector => Array.from(document.querySelectorAll(selector));
@@ -70,7 +71,8 @@
     game = core.createMatch(chosen);
     resetInput();
     paused = false;
-    particles = []; cameraShake = 0;
+    particles = []; cameraShake = 0; impactFreeze = 0; comboVisible = 0;
+    $("comboCallout").classList.remove("visible");
     $("menuOverlay").classList.add("hidden");
     $("resultOverlay").classList.add("hidden");
     $("pauseOverlay").classList.add("hidden");
@@ -122,6 +124,13 @@
   function endEvents(events) {
     for (const e of events) {
       if (e.type === "hit" || e.type === "block") {
+        impactFreeze = Math.max(impactFreeze, e.type === "block" ? .018 : (e.kind === "special" ? .085 : .042));
+        if (e.type === "hit" && e.who === 0 && e.combo >= 2) {
+          const callout = $("comboCallout");
+          callout.textContent = e.combo + " HIT COMBO";
+          callout.classList.add("visible");
+          comboVisible = .95;
+        }
         const f = game.fighters[e.target];
         const x = f.x, y = 296 - (e.kind === "kick" ? 18 : 48);
         burst(x, y, e.type === "block" ? "#a7d8ff" : "#ffe0a2", e.type === "block" ? 7 : 15);
@@ -456,10 +465,15 @@
     if(!last)last=now;
     const delta=Math.min((now-last)/1000,.08);last=now;
     if (!document.hidden) readController();
+    comboVisible = Math.max(0, comboVisible - delta);
+    if (comboVisible === 0) $("comboCallout").classList.remove("visible");
     const freeze=paused || game.phase==="roundOver" || game.phase==="matchOver";
     if(!freeze)tickTime+=delta;
     if(game.phase==="fighting"&&!paused){
-      accumulator+=delta;
+      // Brief hitstop freezes combat time as well as movement to sell impact.
+      const combatDelta = impactFreeze > 0 ? 0 : delta;
+      impactFreeze = Math.max(0, impactFreeze - delta);
+      accumulator+=combatDelta;
       let cycles=0;
       while(accumulator>=1/60&&cycles++<5){
         const action=pending?.name||null, ctl={move:moveCommand(),guard:input.guard || padState.guard,action,dodge:pendingDodge};
