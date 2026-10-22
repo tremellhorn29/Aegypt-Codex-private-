@@ -12,7 +12,7 @@
   <main class="shell">
     <header class="site-header">
       <div class="brand"><span class="bolt">✦</span><div><div class="kicker">FAST LN PRESENTS</div><strong>STREET <em>KINGS</em></strong></div></div>
-      <div class="header-right"><span class="season-tag">SEASON 01 <i>•</i> THE BLOCK</span><button id="soundBtn" class="icon-btn" type="button" aria-label="Toggle sound" aria-pressed="true">♫</button><button id="pauseBtn" class="icon-btn" type="button" aria-label="Pause match">Ⅱ</button></div>
+      <div class="header-right"><span class="season-tag">SEASON 01 <i>•</i> THE BLOCK</span><span id="controllerStatus" class="controller-status" role="status" aria-live="polite">🎮 PRESS ✕ ON DS4</span><button id="soundBtn" class="icon-btn" type="button" aria-label="Toggle sound" aria-pressed="true">♫</button><button id="pauseBtn" class="icon-btn" type="button" aria-label="Pause match">Ⅱ</button></div>
     </header>
     <section class="fight-hud" aria-label="Match scoreboard">
       <div class="fighter-panel left-panel"><div class="fighter-meta"><span class="player-number">01 / THE CHALLENGER</span><strong>STAR</strong><span id="playerWins" class="round-pips" aria-label="Player rounds won">◇ ◇</span></div><div class="health-track"><div id="playerHealth" class="health-fill player-health"></div></div><div class="sub-track"><div id="playerStamina" class="stamina-fill"></div></div><span class="track-label">HEALTH <span id="playerHpLabel">100</span> <span class="divider-dot">·</span> STAMINA</span></div>
@@ -34,7 +34,7 @@
   <section id="menuOverlay" class="overlay" aria-label="Main menu">
     <div class="modal main-menu">
       <div class="menu-art"><span class="poster-stamp">FAST LN / ORIGINAL GAME</span><span class="poster-outline">STREET</span><strong>STREET<br><em>KINGS.</em></strong><span class="poster-sub">YOUR BLOCK. YOUR RULES.</span></div>
-      <div class="menu-content"><p class="kicker">THE ROAD TO THE CROWN</p><h1>TAKE YOUR<br>SHOT.</h1><p class="menu-copy">Three rivals. Best of three rounds. No account. No shortcuts. Win fights, stack cash, and earn your way to the champion.</p><div class="career-stats"><div><strong id="menuWins">0</strong><small>WINS</small></div><div><strong id="menuLosses">0</strong><small>LOSSES</small></div><div><strong id="menuCash">$0</strong><small>EARNED</small></div></div><h2 class="pick-title">CHOOSE YOUR OPPONENT</h2><div id="rivalList" class="rival-list"></div><button id="fightBtn" class="primary-btn" type="button">ENTER THE RING <span>→</span></button><p class="tiny-note">Progress saves on this device. Best on mobile in landscape or portrait.</p></div>
+      <div class="menu-content"><p class="kicker">THE ROAD TO THE CROWN</p><h1>TAKE YOUR<br>SHOT.</h1><p class="menu-copy">Three rivals. Best of three rounds. No account. No shortcuts. Win fights, stack cash, and earn your way to the champion.</p><div class="career-stats"><div><strong id="menuWins">0</strong><small>WINS</small></div><div><strong id="menuLosses">0</strong><small>LOSSES</small></div><div><strong id="menuCash">$0</strong><small>EARNED</small></div></div><h2 class="pick-title">CHOOSE YOUR OPPONENT</h2><div id="rivalList" class="rival-list"></div><button id="fightBtn" class="primary-btn" type="button">ENTER THE RING <span>→</span></button><p id="controllerGuide" class="controller-guide">DUALSHOCK 4: Connect via iPhone Bluetooth, open the game in Safari, then press ✕ on the controller to activate. Use the D-pad and ✕ to start.</p><p class="tiny-note">Progress saves on this device. Best on mobile in landscape or portrait.</p></div>
     </div>
   </section>
   <section id="resultOverlay" class="overlay hidden" aria-label="Round result" aria-live="polite">
@@ -44,6 +44,7 @@
     <div class="modal pause-modal"><p class="kicker">TIME OUT</p><h2>PAUSED.</h2><p>Your opponent isn't going anywhere.</p><button id="resumeBtn" class="primary-btn" type="button">RESUME FIGHT →</button><button id="quitBtn" class="secondary-btn" type="button">QUIT TO FIGHT CARD</button></div>
   </section>
   <script src="scripts/fight-core.js?v=1" defer></script>
+  <script src="scripts/gamepad.js?v=1" defer></script>
   <script src="scripts/fighters.js?v=1" defer></script>
 </body>
 </html>

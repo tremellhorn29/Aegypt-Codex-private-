@@ -26,6 +26,34 @@ const { chromium } = require(require.resolve("playwright", {
   assert.equal(await page.locator("#timer").textContent(), frozen);
   await page.locator("#resumeBtn").tap();
   assert.equal(await page.locator("#pauseOverlay").isVisible(), false);
+  // Simulate a standard-layout DualShock 4 exposed by Safari after its first button press.
+  await page.evaluate(() => {
+    const down = new Set();
+    window.__testPadDown = down;
+    window.__testPad = { index: 0, id: "DUALSHOCK 4 Wireless Controller",
+      connected: true, mapping: "standard", axes: [0, 0],
+      buttons: Array.from({ length: 17 }, (_, i) => ({ get pressed() { return down.has(i); }, get value() { return down.has(i) ? 1 : 0; } }))
+    };
+    Object.defineProperty(navigator, "getGamepads", { configurable: true, value: () => [window.__testPad] });
+  });
+  await page.waitForTimeout(100);
+  assert.match(await page.locator("#controllerStatus").textContent(), /CONNECTED/);
+  await page.evaluate(() => window.__testPadDown.add(9)); // OPTIONS pauses.
+  await page.waitForTimeout(100);
+  assert.equal(await page.locator("#pauseOverlay").isVisible(), true);
+  await page.evaluate(() => { window.__testPadDown.delete(9); window.__testPadDown.add(0); }); // ✕ resumes.
+  await page.waitForTimeout(100);
+  assert.equal(await page.locator("#pauseOverlay").isVisible(), false);
+  await page.evaluate(() => { window.__testPadDown.delete(0); window.__testPadDown.add(3); }); // △ kick.
+  await page.waitForTimeout(100);
+  assert.ok(Number(await page.locator("#playerStamina").evaluate(el => parseFloat(el.style.width))) < 100);
+  await page.evaluate(() => window.__testPadDown.clear());
+  await page.waitForTimeout(70);
+  // Losing the controller must pause instead of advancing a running match.
+  await page.evaluate(() => { Object.defineProperty(navigator, "getGamepads", { configurable: true, value: () => [] }); });
+  await page.waitForTimeout(100);
+  assert.equal(await page.locator("#pauseOverlay").isVisible(), true);
+  await page.locator("#resumeBtn").tap();
   await page.locator("[data-action='jab']").tap();
   await page.locator("[data-hold='right']").dispatchEvent("pointerdown", { pointerId: 1, pointerType: "touch" });
   await page.waitForTimeout(250);

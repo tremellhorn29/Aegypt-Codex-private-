@@ -1,7 +1,7 @@
 name: Street Kings combat checks
 on:
   push:
-    branches: [main, "feature/street-kings-combat-rebuild"]
+    branches: [main, "feature/**"]
   pull_request:
     branches: [main]
 permissions:
@@ -18,5 +18,6 @@ jobs:
         run: |
           node --check scripts/fight-core.js
           node --check scripts/fighters.js
+          node --check scripts/gamepad.js
       - name: Run combat regression tests
-        run: node --test tests/fight.test.cjs
+        run: node --test tests/fight.test.cjs tests/gamepad.test.cjs

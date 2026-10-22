@@ -3,6 +3,10 @@
   "use strict";
   const core = window.FightCore;
   if (!core) throw new Error("Combat engine did not load");
+  if (!window.FASTLNGamepad) throw new Error("Gamepad reader did not load");
+  const padReader = window.FASTLNGamepad.createReader();
+  let padState = { connected: false, move: 0, guard: false };
+  let controllerLabel = "";
   const $ = id => document.getElementById(id);
   const cv = $("arena"), ctx = cv.getContext("2d");
   const C = core.RIVALS;
@@ -156,7 +160,60 @@
     $("enemyTitle").textContent = C[game.rivalIndex].title;
     $("specialBtn").disabled = a.meter < 65 || game.phase !== "fighting" || paused;
   }
-  function moveCommand() { return (input.right ? 1 : 0) - (input.left ? 1 : 0); }
+  function moveCommand() {
+    const manual = (input.right ? 1 : 0) - (input.left ? 1 : 0);
+    return cl(manual || padState.move || 0, -1, 1);
+  }
+  function readController() {
+    // Browsers, including iOS Safari, may hide paired pads until their first button press.
+    let pads = [];
+    try {
+      if (typeof navigator !== "undefined" && typeof navigator.getGamepads === "function") {
+        pads = navigator.getGamepads() || [];
+      }
+    } catch (_) { /* Touch/keyboard still work if Gamepad API is blocked. */ }
+    const next = padReader.poll(pads);
+    if (next.newConnection || next.disconnected) {
+      const status = $("controllerStatus");
+      status.textContent = next.connected ? "🎮 DS4 / PAD CONNECTED" : "🎮 DISCONNECTED · TOUCH READY";
+      status.title = next.connected ? next.name : "Controller disconnected; reconnect or use touch";
+      $("controllerGuide").textContent = next.connected
+        ? "Controller ready! Left stick or D-pad to move · ✕ jab · □ hook · △ kick · ◯ dodge · L1/L2 guard · R1/R2 finisher · OPTIONS pause."
+        : "Controller lost connection. Press a controller button to reconnect, or continue with touch controls.";
+      if (next.disconnected && game.phase === "fighting" && !paused) setPaused(true);
+    }
+    padState = next;
+    if (!next.connected) return;
+    const pressed = new Set(next.edges);
+    if (pressed.has("options")) {
+      if (game.phase === "fighting") setPaused(!paused);
+      else if (!$("pauseOverlay").classList.contains("hidden")) setPaused(false);
+      return;
+    }
+    if (!$("menuOverlay").classList.contains("hidden")) {
+      const direction = (pressed.has("down") || pressed.has("right") ? 1 : 0)
+        - (pressed.has("up") || pressed.has("left") ? 1 : 0);
+      if (direction) { chosen = cl(chosen + direction, 0, stat.unlocked); updateCareer(); sound("select"); }
+      if (pressed.has("cross")) startMatch();
+      return;
+    }
+    if (!$("resultOverlay").classList.contains("hidden")) {
+      if (pressed.has("cross")) $("resultBtn").click();
+      else if (pressed.has("circle")) $("exitBtn").click();
+      return;
+    }
+    if (!$("pauseOverlay").classList.contains("hidden")) {
+      if (pressed.has("cross")) setPaused(false);
+      else if (pressed.has("circle")) openMenu();
+      return;
+    }
+    if (game.phase !== "fighting" || paused) return;
+    if (pressed.has("cross")) setAction("jab");
+    if (pressed.has("square")) setAction("hook");
+    if (pressed.has("triangle")) setAction("kick");
+    if (pressed.has("circle")) setAction("dodge");
+    if (pressed.has("r1") || pressed.has("r2")) setAction("special");
+  }
   function setAction(action) {
     if (game.phase !== "fighting" || paused) return;
     if (action === "dodge") pendingDodge = true;
@@ -398,13 +455,14 @@
   function frame(now) {
     if(!last)last=now;
     const delta=Math.min((now-last)/1000,.08);last=now;
+    if (!document.hidden) readController();
     const freeze=paused || game.phase==="roundOver" || game.phase==="matchOver";
     if(!freeze)tickTime+=delta;
     if(game.phase==="fighting"&&!paused){
       accumulator+=delta;
       let cycles=0;
       while(accumulator>=1/60&&cycles++<5){
-        const action=pending?.name||null, ctl={move:moveCommand(),guard:input.guard,action,dodge:pendingDodge};
+        const action=pending?.name||null, ctl={move:moveCommand(),guard:input.guard || padState.guard,action,dodge:pendingDodge};
         endEvents(core.step(game,ctl,1/60));
         pendingDodge=false;
         if(pending){pending.ttl-=1/60;if(pending.ttl<=0||game.fighters[0].attack===pending.name)pending=null;}
