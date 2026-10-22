@@ -38,6 +38,10 @@ Browser support depends on the browser/iOS version and Gamepad API permissions. 
 
 A jab is quick and inexpensive. Hooks and kicks have longer recovery; kicks have more reach. Guarding reduces incoming damage but drains stamina. Dodging spends stamina and grants a brief evasive window. Clean hits build power toward a heavy finisher. Fighters recover stamina between actions.
 
+### Combat 2.0: hit confirmation and three-hit chains
+
+Landing another **clean hit within 1.15 seconds** continues a combo, up to three hits. The second and third hits deal 2 and 4 additional damage and award slightly more special meter. Blocks, missed attacks, getting hit, and running out of combo time reset the chain. A missed attack also creates a slightly longer recovery period, rewarding patient counterattacks. Impact frames briefly pause the action and a combo callout confirms successful chains. This changes neither the DUALSHOCK 4 mappings nor existing career saves.
+
 ### Career and saves
 
 Career data is stored locally in `fastln_street_kings_v1`: completed match wins/losses, cash won and unlocked rivals. A page refresh does **not** preserve a match currently underway. Local storage may be disabled by the browser, in which case fighting still works but progress may not persist. No accounts or cloud saves.
@@ -64,7 +68,7 @@ node --check scripts/gamepad.js
 node --test tests/fight.test.cjs tests/gamepad.test.cjs
 ```
 
-The rules suite covers initialization, move range, blocking, stamina, finishers, dodges, draws, round victories and timer decisions. Manual browser checks on actual iOS/Android devices are still recommended for long multitouch holds, background/resume, sound, orientation and performance.
+The rules suite covers initialization, move range, blocking, stamina, finishers, dodges, draws, round victories, combo damage, whiff recovery and timer decisions. Manual browser checks on actual iOS/Android devices are still recommended for long multitouch holds, background/resume, sound, orientation and performance.
 
 ## Project direction
 
