@@ -42,3 +42,14 @@ linear-gradient(180deg,#2c2140 0 34%,#735238 34% 58%,#3b3d43 58% 100%);backgroun
 @media(hover:none),(pointer:coarse){.touch-controls{display:flex}}
 @media(max-width:760px){.game-shell{padding:max(.35rem,env(safe-area-inset-top)) .35rem max(.35rem,env(safe-area-inset-bottom))}.hud{grid-template-columns:1fr auto}.brand-card{display:none}.mission-card{min-height:68px}.phone-launch{width:58px}.stats-strip{grid-template-columns:repeat(3,1fr)}.camera{height:62vh;min-height:430px;max-height:640px}.dialogue{left:.45rem;right:.45rem;bottom:7rem}.location-banner{font-size:.6rem}.bottom-bar{display:none}}
 @media(max-width:420px){.stats-strip>div{padding:.3rem}.stats-strip strong{font-size:.85rem}.stats-strip small{font-size:.48rem}.dialogue{grid-template-columns:50px 1fr;font-size:.82rem}.dialogue-portrait{width:46px;height:46px}.dpad{width:120px;height:120px;grid-template:repeat(3,40px)/repeat(3,40px)}.touch-btn{width:40px;height:40px}.action-btn{width:62px;height:58px}}
+
+/* Daily life: visible time budget and touch-friendly phone actions. */
+.day-strip{display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap;padding:.55rem .7rem;background:#171323;border-bottom:2px solid #594177;color:var(--gold);font-size:.72rem;font-weight:800}
+.day-strip small{font-size:.6rem;color:#a5cbb2}.location-banner{top:53px}
+.phone-device{display:flex;flex-direction:column;height:min(800px,94dvh)}
+.phone-device header,.phone-grid{flex-shrink:0}.phone-content{height:auto;flex:1;min-height:0;overscroll-behavior:contain}
+.activity-card{border-bottom:1px solid #c9c3b8;padding:0 0 1rem;margin:0 0 1rem}.activity-card h4{margin:.3rem 0;font-size:1rem}.activity-card strong,.activity-card small{display:block;margin:.4rem 0}.activity-card strong{color:#225637;font-size:.8rem}
+.life-action{display:block;width:100%;min-height:48px;margin:.65rem 0 0;padding:.7rem;border:2px solid #195836;border-radius:10px;background:#235f3b;color:white;font-weight:800;cursor:pointer}.life-action.secondary{background:#343243}.life-action:disabled{background:#e2dfd8;color:#59564e;border-color:#c2bdb2;cursor:default}.life-action:focus-visible{outline:3px solid #8b5cf6;outline-offset:2px}.phone-grid button[aria-pressed="true"]{outline:2px solid var(--green)}
+#activityFeedback:not(:empty){padding:.65rem;margin-bottom:.7rem;border-left:4px solid #235f3b;background:#d7eddf;color:#163622;font-size:.85rem}
+.menu-btn:disabled{opacity:.45;cursor:default}
+@media(max-height:600px){.phone-grid{grid-template-columns:repeat(6,1fr);gap:.25rem;margin:.6rem 0}.phone-grid span{font-size:1rem}.phone-device{padding:.65rem;border-radius:20px;width:min(600px,96vw)}}
