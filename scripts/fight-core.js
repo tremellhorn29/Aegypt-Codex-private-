@@ -19,7 +19,8 @@
   function fighter(name, x, color, skin, speed) {
     return { name, x, health: 100, stamina: 100, meter: 0, color, skin, speed,
       guard: false, dodge: 0, dodgeCooldown: 0, stun: 0, cooldown: 0, attack: null,
-      attackClock: 0, hitPending: false, facing: x < WIDTH / 2 ? 1 : -1, moving: 0 };
+      attackClock: 0, hitPending: false, facing: x < WIDTH / 2 ? 1 : -1, moving: 0,
+      combo: 0, comboTimer: 0, hitLanded: false, parry: 0, punish: 0 };
   }
   function createMatch(rivalIndex = 0) {
     const index = clamp(Math.floor(Number(rivalIndex) || 0), 0, RIVALS.length - 1);
@@ -53,13 +54,26 @@
   }
   function beginAttack(game, index, kind) {
     const f = game.fighters[index], move = MOVES[kind];
-    if (!move || game.phase !== "fighting" || f.health <= 0 || f.attack || f.stun > 0 || f.dodge > 0 || f.cooldown > 0 || f.stamina < move.cost || (kind === "special" && f.meter < 65)) return false;
+    if (!move || game.phase !== "fighting" || f.health <= 0 || f.stun > 0 ||
+        f.dodge > 0 || f.stamina < move.cost || (kind === "special" && f.meter < 65)) return false;
+    // A confirmed jab/hook can cancel its recovery into a different strike.
+    // Raw button-mashing cannot cancel on whiff or on block.
+    const chaining = Boolean(f.attack && f.hitLanded && f.attackClock <= .19 &&
+      f.attackClock > 0 && ["jab", "hook"].includes(f.attack) && kind !== f.attack);
+    if ((f.attack || f.cooldown > 0) && !chaining) return false;
+    if (chaining) {
+      f.attack = null;
+      f.cooldown = 0;
+      game.events.push({ type: "chain", who: index, count: Math.min(8, f.combo + 1) });
+    }
     f.stamina -= move.cost;
     if (kind === "special") f.meter -= 65;
     f.attack = kind;
     f.attackClock = move.duration;
     f.hitPending = true;
+    f.hitLanded = false;
     f.guard = false;
+    f.parry = 0;
     f.cooldown = move.cooldown;
     game.events.push({ type: "swing", who: index, kind });
     return true;
@@ -79,19 +93,50 @@
     const a = game.fighters[index], b = game.fighters[1 - index], move = MOVES[kind];
     const distance = Math.abs(a.x - b.x);
     if (distance > move.reach || b.dodge > 0) {
+      if (b.dodge > 0 && distance <= move.reach + 50) b.punish = .85;
+      a.combo = 0; a.comboTimer = 0;
       game.events.push({ type: b.dodge > 0 ? "evade" : "whiff", who: index, kind });
       return;
     }
     const blocked = b.guard && b.stamina > 0 && b.stun <= 0;
-    const damage = blocked ? Math.max(1, Math.round(move.damage * .16)) : move.damage;
+    // Guard within the first 170ms of contact: parry, recoil and punish opportunity.
+    if (blocked && b.parry > 0) {
+      b.parry = 0;
+      b.punish = 1.15;
+      b.meter = clamp(b.meter + 20, 0, 100);
+      b.stamina = clamp(b.stamina - 3, 0, 100);
+      a.attack = null; a.hitPending = false; a.stun = .49; a.cooldown = .49;
+      a.combo = 0; a.comboTimer = 0;
+      game.events.push({ type: "parry", who: 1 - index, target: index });
+      return;
+    }
+    if (!blocked) {
+      a.combo = a.comboTimer > 0 ? clamp(a.combo + 1, 1, 8) : 1;
+      a.comboTimer = 1.1;
+      a.hitLanded = true;
+    } else {
+      a.combo = 0; a.comboTimer = 0; a.hitLanded = false;
+    }
+    const counter = !blocked && a.punish > 0;
+    const multiplier = 1 + Math.min(4, a.combo - 1) * .09 + (counter ? .3 : 0);
+    const damage = blocked ? Math.max(1, Math.round(move.damage * .16)) : Math.round(move.damage * multiplier);
+    if (counter) a.punish = 0;
     b.health = clamp(b.health - damage, 0, 100);
     b.stamina = clamp(b.stamina - (blocked ? move.damage * .80 : 5), 0, 100);
-    a.meter = clamp(a.meter + (blocked ? 5 : move.gain), 0, 100);
+    a.meter = clamp(a.meter + (blocked ? 5 : move.gain) + (counter ? 10 : 0), 0, 100);
     b.meter = clamp(b.meter + (blocked ? 3 : 8), 0, 100);
     b.x = clamp(b.x + Math.sign(b.x - a.x) * (blocked ? 5 : move.knock), 80, 880);
-    if (!blocked) { b.stun = kind === "special" ? .38 : (kind === "jab" ? .10 : .23); b.attack = null; b.hitPending = false; }
-    if (blocked && b.stamina <= 0) { b.guard = false; b.stun = .8; game.events.push({ type: "guardBreak", who: 1 - index }); }
-    game.events.push({ type: blocked ? "block" : "hit", who: index, target: 1 - index, damage, kind });
+    if (!blocked) {
+      b.stun = kind === "special" ? .38 : (kind === "jab" ? .13 : .26);
+      b.attack = null; b.hitPending = false; b.hitLanded = false;
+      b.combo = 0; b.comboTimer = 0;
+    }
+    if (blocked && b.stamina <= 0) {
+      b.guard = false; b.stun = .8;
+      game.events.push({ type: "guardBreak", who: 1 - index });
+    }
+    game.events.push({ type: blocked ? "block" : "hit", who: index,
+      target: 1 - index, damage, kind, combo: blocked ? 0 : a.combo, counter });
   }
   function decideAI(game, dt, random) {
     const a = game.fighters[1], p = game.fighters[0], ai = game.ai;
@@ -99,19 +144,26 @@
     if (ai.clock <= 0) {
       const rival = RIVALS[game.rivalIndex];
       const distance = Math.abs(a.x - p.x);
-      const threatened = Boolean(p.attack && p.attackClock > .06);
-      ai.clock = .18 + random() * .24;
-      ai.guard = threatened && random() < (.22 + rival.aggression * .53);
-      if (a.stamina < 17) ai.guard = random() < .6;
-      ai.move = distance > 118 ? -1 : distance < 88 && random() < .5 ? 1 : (random() < .18 ? -1 : 0);
+      const threatened = Boolean(p.attack && p.attackClock > .06 && distance < 175);
+      // Rook rushes, Vex makes you whiff, Crown changes rhythm.
+      ai.clock = game.rivalIndex === 0 ? .23 + random() * .22 :
+                 game.rivalIndex === 1 ? .16 + random() * .14 : .13 + random() * .16;
+      ai.guard = threatened && random() < [ .32, .72, .60 ][game.rivalIndex];
+      ai.dodge = threatened && !ai.guard && random() < [ .03, .44, .25 ][game.rivalIndex];
+      if (a.stamina < 17) { ai.guard = random() < .65; ai.dodge = false; }
+      ai.move = distance > (game.rivalIndex === 1 ? 130 : 112) ? Math.sign(p.x - a.x) :
+        distance < 85 && random() < .6 ? -Math.sign(p.x - a.x) :
+        (random() < .14 ? Math.sign(p.x - a.x) : 0);
       ai.action = null;
-      if (!ai.guard && distance < 166 && a.stamina >= 9 && random() < (.40 + rival.aggression * .33)) {
+      if (!ai.guard && !ai.dodge && distance < 175 && a.stamina >= 9 &&
+          random() < [ .58, .45, .70 ][game.rivalIndex]) {
         const roll = random();
-        ai.action = roll < .48 ? "jab" : roll < .78 ? "hook" : "kick";
-        if (a.meter >= 65 && random() < rival.aggression * .46) ai.action = "special";
+        ai.action = roll < (game.rivalIndex === 1 ? .23 : .48) ? "jab" :
+          roll < .79 ? "hook" : "kick";
+        if (a.meter >= 65 && random() < rival.aggression * .57) ai.action = "special";
       }
     }
-    return { move: ai.move, guard: ai.guard, action: ai.action };
+    return { move: ai.move, guard: ai.guard, dodge: ai.dodge, action: ai.action };
   }
   function settle(game) {
     if (game.phase !== "fighting") return;
@@ -133,10 +185,17 @@
       const f = game.fighters[i], enemy = game.fighters[1 - i], input = controls[i];
       f.facing = f.x < enemy.x ? 1 : -1;
       f.stun = Math.max(0, f.stun - delta);
+      f.comboTimer = Math.max(0, f.comboTimer - delta);
+      if (f.comboTimer === 0) f.combo = 0;
+      f.parry = Math.max(0, f.parry - delta);
+      f.punish = Math.max(0, f.punish - delta);
       f.cooldown = Math.max(0, f.cooldown - delta);
       f.dodge = Math.max(0, f.dodge - delta);
       f.dodgeCooldown = Math.max(0, f.dodgeCooldown - delta);
+      const wasGuarding = f.guard;
       f.guard = Boolean(input.guard && f.stamina > 0 && f.stun === 0 && !f.attack && f.dodge === 0);
+      if (f.guard && !wasGuarding) f.parry = .17;
+      if (!f.guard) f.parry = 0;
       f.moving = 0;
       if (input.dodge && f.dodge === 0) dodge(game, i);
       if (input.action && !f.guard) beginAttack(game, i, input.action);
